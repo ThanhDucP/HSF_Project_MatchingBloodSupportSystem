@@ -18,9 +18,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Account account = accountRepository.findByUserName(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy user"));
+    public UserDetails loadUserByUsername(String accountId) throws UsernameNotFoundException {
+        Account account = accountRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy account ID"));
 
         return new org.springframework.security.core.userdetails.User(
                 account.getUserName(),
@@ -28,5 +28,8 @@ public class CustomUserDetailsService implements UserDetailsService {
                 List.of(new SimpleGrantedAuthority("ROLE_" + account.getRole().getRole()))
         );
     }
+
+
+
 }
 

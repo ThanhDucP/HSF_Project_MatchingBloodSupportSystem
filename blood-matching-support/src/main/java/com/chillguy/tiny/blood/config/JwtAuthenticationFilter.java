@@ -7,35 +7,39 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final UserDetailsService userDetailsService;
     private final TokenBlacklistService tokenBlacklistService;
 
-    private static final List<String> EXCLUDE_URLS = List.of(
+    private static final List<String> EXCLUDE_PREFIXES = List.of(
             "/api/auth/login",
             "/api/auth/logout",
-            "/api/auth/validate"
+            "/api/auth/validate",
+            "/swagger", "/v3/api-docs", "/swagger-ui"
     );
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService, TokenBlacklistService tokenBlacklistService) {
+    @Autowired
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, TokenBlacklistService tokenBlacklistService) {
         this.jwtUtil = jwtUtil;
-        this.userDetailsService = userDetailsService;
         this.tokenBlacklistService = tokenBlacklistService;
+    }
+
+    private boolean isExcluded(String path) {
+        return EXCLUDE_PREFIXES.stream().anyMatch(path::startsWith);
     }
 
     @Override
@@ -44,7 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         String path = request.getServletPath();
-        if (EXCLUDE_URLS.contains(path)) {
+        if (isExcluded(path)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -60,26 +64,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (tokenBlacklistService.contains(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json; charset=UTF-8");
-            response.getWriter().write("{\"status\":\"fail\", \"message\":\"Token đã đăng xuất hoặc không hợp lệ\"}");
+            response.getWriter().write("{\"status\":\"fail\", \"message\":\"Token đã bị vô hiệu hóa hoặc đăng xuất\"}");
             return;
         }
 
         try {
             String accountId = jwtUtil.extractAccountId(token);
-            if (accountId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(accountId);
 
-                List<SimpleGrantedAuthority> authorities = userDetails.getAuthorities().stream()
-                        .map(auth -> new SimpleGrantedAuthority(
-                                auth.getAuthority().startsWith("ROLE_") ? auth.getAuthority() : "ROLE_" + auth.getAuthority()))
-                        .collect(Collectors.toList());
+            if (accountId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                // Nếu cần quyền thì lấy từ claims
+                String role = jwtUtil.extractAllClaims(token).get("role", String.class);
+                List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
                 UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
+                        new UsernamePasswordAuthenticationToken(accountId, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
 
         } catch (Exception e) {
+            log.error("JWT validation failed: ", e);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json; charset=UTF-8");
             response.getWriter().write("{\"status\":\"fail\", \"message\":\"Token không hợp lệ hoặc đã hết hạn\"}");

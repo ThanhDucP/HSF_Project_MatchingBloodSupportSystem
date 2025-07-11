@@ -50,6 +50,7 @@ public class SecurityConfig {
 
 
 
+
                         // Tất cả còn lại yêu cầu login
                         .anyRequest().authenticated()
                 )

@@ -1,9 +1,7 @@
 package com.chillguy.tiny.blood.config;
 
-import com.chillguy.tiny.blood.entity.Account;
-import com.chillguy.tiny.blood.entity.Role;
-import com.chillguy.tiny.blood.repository.AccountRepository;
-import com.chillguy.tiny.blood.repository.RoleRepository;
+import com.chillguy.tiny.blood.entity.*;
+import com.chillguy.tiny.blood.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -13,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -21,6 +20,7 @@ public class DataInitializer {
     private final AccountRepository accountRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final BloodRepository bloodRepository;
 
     private static final String ROLE_ADMIN = "ADMIN";
     private static final String ROLE_STAFF = "STAFF";
@@ -28,6 +28,11 @@ public class DataInitializer {
 
     @EventListener(ApplicationReadyEvent.class)
     public void initializeDefaultData() {
+        initRolesAndAccounts();
+        initBloodSamples();
+    }
+
+    private void initRolesAndAccounts() {
         createRoleIfNotExist(ROLE_ADMIN, "Quản trị viên hệ thống");
         createRoleIfNotExist(ROLE_STAFF, "Nhân viên bệnh viện");
         createRoleIfNotExist(ROLE_MEMBER, "Người dùng thường");
@@ -39,9 +44,10 @@ public class DataInitializer {
 
     private void createRoleIfNotExist(String roleName, String description) {
         if (!roleRepository.existsByRoleIs(roleName)) {
-            Role role = new Role();
-            role.setRole(roleName);
-            role.setDescription(description);
+            Role role = Role.builder()
+                    .role(roleName)
+                    .description(description)
+                    .build();
             roleRepository.save(role);
             System.out.printf("✅ Created role: %s%n", roleName);
         }
@@ -50,23 +56,57 @@ public class DataInitializer {
     private void createAccountIfNotExist(String username, String email, String roleName) {
         if (!accountRepository.existsByUserNameIgnoreCase(username)) {
             String accountId = generateAccountId();
-            Account account = new Account();
-            account.setAccountId(accountId);
-            account.setUserName(username);
-            account.setPassword(passwordEncoder.encode("12345678"));
-            account.setEmail(email);
-            account.setIsActive(true);
-
-            Role role = roleRepository.findByRole(roleName).orElseThrow(
-                    () -> new IllegalStateException("Role not found: " + roleName)
-            );
-            account.setRole(role);
+            Account account = Account.builder()
+                    .accountId(accountId)
+                    .userName(username)
+                    .password(passwordEncoder.encode("12345678"))
+                    .email(email)
+                    .isActive(true)
+                    .role(roleRepository.findByRole(roleName)
+                            .orElseThrow(() -> new IllegalStateException("Role not found: " + roleName)))
+                    .build();
 
             accountRepository.save(account);
             System.out.printf("✅ Created account: %s / 12345678%n", username);
         } else {
             System.out.printf("ℹ️ Account already exists: %s%n", username);
         }
+    }
+
+
+    private void initBloodSamples() {
+        if (bloodRepository.count() > 0) return;
+
+        for (Blood.BloodType type : Blood.BloodType.values()) {
+            for (Blood.RhFactor rh : Blood.RhFactor.values()) {
+                for (Blood.ComponentType component : Blood.ComponentType.values()) {
+                    Blood blood = Blood.builder()
+                            .bloodCode(generateBloodCode(type, rh, component))
+                            .bloodType(type)
+                            .rh(rh)
+                            .componentType(component)
+                            .isRareBlood(isRare(type, rh))
+                            .quantity(0)
+                            .build();
+
+                    bloodRepository.save(blood);
+                }
+            }
+        }
+
+        System.out.println("✅ Blood samples initialized.");
+    }
+
+    private boolean isRare(Blood.BloodType type, Blood.RhFactor rh) {
+        String code = type.name() + (rh == Blood.RhFactor.POSITIVE ? "+" : "-");
+
+        return List.of("AB-", "B-", "A-", "O-").contains(code);
+    }
+
+
+
+    private String generateBloodCode(Blood.BloodType type, Blood.RhFactor rh, Blood.ComponentType comp) {
+        return type.name() + "_" + (rh == Blood.RhFactor.POSITIVE ? "POS" : "NEG") + "_" + comp.name();
     }
 
     private String generateAccountId() {
