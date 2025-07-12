@@ -3,7 +3,7 @@ package com.chillguy.tiny.blood.repository;
 import com.chillguy.tiny.blood.entity.Blood;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface BloodRepository extends JpaRepository<Blood, Long> {
+public interface BloodRepository extends JpaRepository<Blood, String> {
 
     Blood findByBloodCode(String bloodCode);
 

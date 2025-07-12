@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Collection;
 import java.util.Optional;
 
-public interface BloodRequestRepository extends JpaRepository<BloodRequest,Long> {
+public interface BloodRequestRepository extends JpaRepository<BloodRequest,String> {
 
         Optional<BloodRequest> findByIdBloodRequest(String idBloodRequest);
 
