@@ -25,13 +25,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final TokenBlacklistService tokenBlacklistService;
 
-    private static final List<String> EXCLUDE_PREFIXES = List.of(
-            "/api/auth/login",
-            "/api/auth/logout",
-            "/api/auth/validate",
-            "/swagger", "/v3/api-docs", "/swagger-ui"
-    );
-
     @Autowired
     public JwtAuthenticationFilter(JwtUtil jwtUtil, TokenBlacklistService tokenBlacklistService) {
         this.jwtUtil = jwtUtil;
@@ -39,8 +32,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private boolean isExcluded(String path) {
-        return EXCLUDE_PREFIXES.stream().anyMatch(path::startsWith);
+        return path.startsWith("/swagger")
+                || path.contains("swagger-ui")
+                || path.contains("api-docs")
+                || path.contains("webjars")
+                || path.startsWith("/api/auth");
     }
+
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
