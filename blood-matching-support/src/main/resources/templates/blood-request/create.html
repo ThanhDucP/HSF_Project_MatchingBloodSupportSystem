@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head}">
+    <title>Tạo đơn xin máu - Blood Matching Support</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100 bg-light">
+    <!-- Navigation -->
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1 py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-6">
+                    <!-- Header -->
+                    <div class="text-center mb-4">
+                        <i class="fas fa-plus-circle fa-3x text-danger mb-3"></i>
+                        <h2 class="fw-bold text-danger">Tạo đơn xin máu</h2>
+                        <p class="text-muted">Điền thông tin để tạo đơn xin máu khẩn cấp</p>
+                    </div>
+
+                    <div class="card shadow">
+                        <div class="card-body p-4">
+                            <!-- Success Message -->
+                            <div th:if="${success}" class="alert alert-success" role="alert">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <span th:text="${success}">Tạo đơn thành công!</span>
+                            </div>
+
+                            <!-- Error Messages -->
+                            <div th:if="${error}" class="alert alert-danger" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <span th:text="${error}">Có lỗi xảy ra!</span>
+                            </div>
+
+                            <!-- Warning for existing request -->
+                            <div class="alert alert-warning" role="alert">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Lưu ý:</strong> Bạn chỉ có thể có 1 đơn xin máu đang hoạt động. 
+                                Nếu đã có đơn chưa hoàn thành, vui lòng hủy đơn cũ trước khi tạo đơn mới.
+                            </div>
+
+                            <!-- Create Request Form -->
+                            <form th:action="@{/blood-requests/create}" method="post" th:object="${bloodRequestDTO}">
+                                <div class="mb-3">
+                                    <label for="patientName" class="form-label">
+                                        <i class="fas fa-user-injured me-1"></i>Tên bệnh nhân <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg" 
+                                           th:field="*{patientName}" id="patientName" required 
+                                           placeholder="Nhập tên bệnh nhân cần máu">
+                                    <div th:if="${#fields.hasErrors('patientName')}" class="text-danger small">
+                                        <span th:errors="*{patientName}"></span>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="bloodCode" class="form-label">
+                                                <i class="fas fa-tint me-1"></i>Nhóm máu cần <span class="text-danger">*</span>
+                                            </label>
+                                            <select class="form-select form-select-lg" th:field="*{bloodCode}" id="bloodCode" required>
+                                                <option value="">Chọn nhóm máu</option>
+                                                <option value="A+">A+ (A Rh dương)</option>
+                                                <option value="A-">A- (A Rh âm)</option>
+                                                <option value="B+">B+ (B Rh dương)</option>
+                                                <option value="B-">B- (B Rh âm)</option>
+                                                <option value="AB+">AB+ (AB Rh dương)</option>
+                                                <option value="AB-">AB- (AB Rh âm)</option>
+                                                <option value="O+">O+ (O Rh dương)</option>
+                                                <option value="O-">O- (O Rh âm - Hiếm)</option>
+                                            </select>
+                                            <div th:if="${#fields.hasErrors('bloodCode')}" class="text-danger small">
+                                                <span th:errors="*{bloodCode}"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="volume" class="form-label">
+                                                <i class="fas fa-flask me-1"></i>Lượng máu cần (ml) <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="number" class="form-control form-control-lg" 
+                                                   th:field="*{volume}" id="volume" required 
+                                                   min="100" max="2000" step="50"
+                                                   placeholder="VD: 500">
+                                            <div class="form-text">
+                                                <i class="fas fa-info-circle text-muted me-1"></i>
+                                                Thường từ 200-500ml, tối đa 2000ml
+                                            </div>
+                                            <div th:if="${#fields.hasErrors('volume')}" class="text-danger small">
+                                                <span th:errors="*{volume}"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="requestDate" class="form-label">
+                                        <i class="fas fa-calendar-alt me-1"></i>Ngày cần máu <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="date" class="form-control form-control-lg" 
+                                           th:field="*{requestDate}" id="requestDate" required>
+                                    <div class="form-text">
+                                        <i class="fas fa-clock text-muted me-1"></i>
+                                        Ngày dự kiến cần sử dụng máu
+                                    </div>
+                                    <div th:if="${#fields.hasErrors('requestDate')}" class="text-danger small">
+                                        <span th:errors="*{requestDate}"></span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" 
+                                               th:field="*{emergency}" id="emergency">
+                                        <label class="form-check-label" for="emergency">
+                                            <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                                            <strong>Trường hợp khẩn cấp</strong>
+                                        </label>
+                                    </div>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle text-muted me-1"></i>
+                                        Đánh dấu nếu cần máu gấp trong 24h
+                                    </div>
+                                </div>
+
+                                <!-- Blood Compatibility Info -->
+                                <div class="alert alert-info">
+                                    <h6 class="alert-heading">
+                                        <i class="fas fa-info-circle me-2"></i>Thông tin tương thích máu
+                                    </h6>
+                                    <div class="row g-2 small">
+                                        <div class="col-6">
+                                            <strong>Có thể nhận từ:</strong>
+                                            <div id="compatibleDonors" class="text-muted">Chọn nhóm máu để xem</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <strong>Hiếm gặp:</strong>
+                                            <div class="text-muted">AB-, O- (cần ưu tiên)</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-danger btn-lg">
+                                        <i class="fas fa-paper-plane me-2"></i>Gửi đơn xin máu
+                                    </button>
+                                    <a th:href="@{/blood-requests}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Help Card -->
+                    <div class="card mt-4 border-warning">
+                        <div class="card-body">
+                            <h6 class="card-title text-warning">
+                                <i class="fas fa-question-circle me-2"></i>Cần hỗ trợ?
+                            </h6>
+                            <p class="card-text small mb-0">
+                                Sau khi tạo đơn, hệ thống sẽ tự động tìm kiếm và thông báo đến những người hiến máu phù hợp. 
+                                Bạn sẽ nhận được email cập nhật về tình trạng đơn xin máu.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+    
+    <script>
+        // Blood compatibility mapping
+        const bloodCompatibility = {
+            'A+': ['A+', 'A-', 'O+', 'O-'],
+            'A-': ['A-', 'O-'],
+            'B+': ['B+', 'B-', 'O+', 'O-'],
+            'B-': ['B-', 'O-'],
+            'AB+': ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+            'AB-': ['A-', 'B-', 'AB-', 'O-'],
+            'O+': ['O+', 'O-'],
+            'O-': ['O-']
+        };
+
+        // Update compatibility info when blood type changes
+        document.getElementById('bloodCode').addEventListener('change', function() {
+            const selectedBlood = this.value;
+            const compatibleDiv = document.getElementById('compatibleDonors');
+            
+            if (selectedBlood && bloodCompatibility[selectedBlood]) {
+                compatibleDiv.innerHTML = bloodCompatibility[selectedBlood].join(', ');
+                compatibleDiv.className = 'text-success';
+            } else {
+                compatibleDiv.innerHTML = 'Chọn nhóm máu để xem';
+                compatibleDiv.className = 'text-muted';
+            }
+        });
+
+        // Set minimum date to today
+        document.getElementById('requestDate').min = new Date().toISOString().split('T')[0];
+    </script>
+</body>
+</html>

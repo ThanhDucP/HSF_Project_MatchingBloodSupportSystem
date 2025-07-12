@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-BloodMatchingSupportApplication<blood-matching-support>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.chillguy.tiny.blood.BloodMatchingSupportApplication",
+            "projectName": "blood-matching-support",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
