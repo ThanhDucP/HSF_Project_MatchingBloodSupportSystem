@@ -22,7 +22,6 @@ public class BloodRequestService {
     private final EmailNotifier emailNotifier;
     private final BloodRepository bloodRepo;
 
-    // ==== 1. Tạo đơn xin máu ====
     public BloodRequestResponseDTO createRequest(BloodRequestDTO dto, String accountId) {
         Account acc = accountRepo.findByAccountId(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản với accountId: " + accountId));
@@ -60,7 +59,6 @@ public class BloodRequestService {
                 .build();
     }
 
-    // ==== 2. Xử lý theo kho máu ====
     public void processRequestWithInventoryCheck(String requestId) {
         BloodRequest request = requestRepo.findByIdBloodRequest(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn yêu cầu với ID: " + requestId));
@@ -78,7 +76,6 @@ public class BloodRequestService {
         }
     }
 
-    // ==== 3. Gửi lô đầu tiên ====
     private void matchInitialBatch(BloodRequest request) {
         List<Profile> eligible = findEligibleDonors(request, 0, 20);
         if (eligible.isEmpty()) throw new IllegalStateException("Không tìm thấy người hiến phù hợp.");
@@ -87,7 +84,6 @@ public class BloodRequestService {
         requestRepo.save(request);
     }
 
-    // ==== 4. Gửi lại lô mở rộng định kỳ ====
     @Scheduled(cron = "0 0 0 * * *")
     public void retryMatchAndNotifyAll() {
         List<BloodRequest> requests = requestRepo.findAll().stream()
@@ -114,7 +110,6 @@ public class BloodRequestService {
         }
     }
 
-    // ==== 5. Gửi email xác nhận hiến máu ====
     private void sendMatchingBatch(BloodRequest request, List<Profile> donors, String subject, String message) {
         for (Profile profile : donors) {
             String email = profile.getAccount().getEmail();
@@ -133,7 +128,6 @@ public class BloodRequestService {
         }
     }
 
-    // ==== 6. Tìm người hiến máu phù hợp ====
     private List<Profile> findEligibleDonors(BloodRequest request, int start, int end) {
         String recipientCode = request.getBloodCode().getBloodCodeString();
 
@@ -147,7 +141,6 @@ public class BloodRequestService {
         return eligible.subList(Math.min(start, eligible.size()), Math.min(end, eligible.size()));
     }
 
-    // ==== 7. Tiện ích ====
     private boolean isEligibleToDonate(Profile p) {
         return p.getRestDate() == null || p.getRestDate().isBefore(LocalDate.now());
     }

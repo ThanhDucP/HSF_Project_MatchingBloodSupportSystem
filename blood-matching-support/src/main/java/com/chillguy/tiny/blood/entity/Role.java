@@ -24,7 +24,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Role {
+public class
+Role {
 
     @Id
     @Column(name = "role_name", nullable = false)
