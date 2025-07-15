@@ -1,14 +1,25 @@
 package com.chillguy.tiny.blood.service;
 
-import com.chillguy.tiny.blood.dto.LoginRequest;
-import com.chillguy.tiny.blood.dto.LoginResponse;
+import com.chillguy.tiny.blood.dto.*;
 import com.chillguy.tiny.blood.entity.Account;
+import com.chillguy.tiny.blood.entity.Role;
+import com.chillguy.tiny.blood.exception.AccountNotFoundException;
+import com.chillguy.tiny.blood.mapper.AccountMapper;
 import com.chillguy.tiny.blood.repository.AccountRepository;
+import com.chillguy.tiny.blood.repository.RoleRepository;
 import com.chillguy.tiny.blood.util.JwtUtil;
+import com.chillguy.tiny.blood.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 
 @RequiredArgsConstructor
 @Service
@@ -18,6 +29,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final TokenBlacklistService tokenBlacklistService;
+    private final RoleRepository roleRepository;
 
     public LoginResponse login(LoginRequest loginRequest) {
         if (loginRequest == null || loginRequest.getUsername() == null || loginRequest.getPassword() == null) {
@@ -78,4 +90,45 @@ public class AuthService {
         }
     }
 
+    public RegisterResponseDto register(RegisterRequestDto requestDto) {
+
+        Account newAccount = new Account();
+        newAccount.setAccountId(generateAccountId());
+        newAccount.setUserName(requestDto.getUsername());
+        newAccount.setPassword(passwordEncoder.encode(requestDto.getPassword()));
+
+        Role memberRole = roleRepository.findByRole("MEMBER");
+        newAccount.setRole(memberRole);
+        newAccount.setIsActive(true);
+        newAccount.setCreationDate(LocalDate.now());
+        accountRepository.save(newAccount);
+
+        RegisterResponseDto responseDto = AccountMapper.accountMapper(newAccount);
+
+        return responseDto;
+    }
+
+    private String generateAccountId() {
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        int random = ThreadLocalRandom.current().nextInt(1000, 9999);
+        return "AC-" + timestamp + "-" + random;
+    }
+
+
+    @Transactional
+    public void resetPassword(String accountId, ResetPasswordDto requestDto) throws BadRequestException {
+
+        String password = requestDto.getPassword();
+        String confirmPassword = requestDto.getConfirmPassword();
+
+        if (!password.equals(confirmPassword))
+            throw new BadRequestException("Reset password fail");
+
+        Account accountInDb = accountRepository.findByAccountId(accountId).orElseThrow(
+                () -> new AccountNotFoundException("Account not found with id " + accountId)
+        );
+
+        accountInDb.setPassword(passwordEncoder.encode(password));
+        accountRepository.save(accountInDb);
+    }
 }

@@ -1,17 +1,16 @@
 package com.chillguy.tiny.blood.controller;
 
+import com.chillguy.tiny.blood.dto.*;
+import com.chillguy.tiny.blood.dto.response.ApiResponse;
+import com.chillguy.tiny.blood.exception.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 
-import com.chillguy.tiny.blood.dto.LoginRequest;
-import com.chillguy.tiny.blood.dto.LoginResponse;
 import com.chillguy.tiny.blood.service.AuthService;
 
 import jakarta.validation.Valid;
@@ -63,6 +62,37 @@ public class AuthController {
         return ResponseEntity.ok(isValid);
     }
 
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse<RegisterResponseDto>> register(@RequestBody @Valid RegisterRequestDto requestDto) {
 
 
+
+        RegisterResponseDto responseDto = authService.register(requestDto);
+        return ResponseEntity.ok(ApiResponse.<RegisterResponseDto>builder()
+                .code(200)
+                .message("Registered successfully!")
+                .result(responseDto)
+                .build());
+    }
+
+
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('MEMBER') and #accountId == authentication.principal.accountId)")
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<String>> resetPassword(@RequestParam String accountId, @RequestBody ResetPasswordDto requestDto) {
+        try {
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            authService.resetPassword(accountId, requestDto);
+            return ResponseEntity.ok(ApiResponse.<String>builder()
+                    .code(200)
+                    .message("Reset password successfully!")
+                    .build());
+        } catch (BadRequestException e) {
+            return ResponseEntity.ok(ApiResponse.<String>builder()
+                    .code(400)
+                    .message("Reset password failed!")
+                    .build());
+        }
+    }
 }
