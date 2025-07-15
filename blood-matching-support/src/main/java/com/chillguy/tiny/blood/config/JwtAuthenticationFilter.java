@@ -27,13 +27,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final TokenBlacklistService tokenBlacklistService;
-    private final AccountRepository accountRepository;
+
+    private AccountRepository accountRepository;
 
     @Autowired
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, TokenBlacklistService tokenBlacklistService, AccountRepository accountRepository) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, TokenBlacklistService tokenBlacklistService) {
         this.jwtUtil = jwtUtil;
         this.tokenBlacklistService = tokenBlacklistService;
-        this.accountRepository = accountRepository;
     }
 
     private boolean isExcluded(String path) {
