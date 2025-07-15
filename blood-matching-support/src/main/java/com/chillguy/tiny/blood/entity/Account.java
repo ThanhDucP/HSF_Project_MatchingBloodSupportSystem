@@ -23,20 +23,15 @@ public class Account {
     private String accountId;
 
     @Column(name = "username", unique = true, nullable = false)
-    @NotBlank(message = "Username không được để trống")
     private String userName;
 
-    @Column(name = "email", unique = true, nullable = false)
-    @Email(message = "Email không hợp lệ")
-    @NotBlank(message = "Email không được để trống")
+    @Column(name = "email", unique = true)
     private String email;
 
     @Column(name = "password")
-    @NotBlank(message = "Mật khẩu không được để trống")
     private String password;
 
     @Column(name = "is_active")
-    @NotNull(message = "Trạng thái tài khoản không được để trống")
     private Boolean isActive;
 
     @Column(name = "creation_date")
@@ -51,6 +46,5 @@ public class Account {
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
     private Profile profile;
-
 
 }
