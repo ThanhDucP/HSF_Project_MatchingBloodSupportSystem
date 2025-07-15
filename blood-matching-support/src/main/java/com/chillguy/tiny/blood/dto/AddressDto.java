@@ -1,21 +1,16 @@
-package com.chillguy.tiny.blood.entity;
+package com.chillguy.tiny.blood.dto;
 
-import jakarta.persistence.Embeddable;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Embeddable
+@AllArgsConstructor
 @Builder
-public class Address {
+public class AddressDto {
 
     @NotBlank(message = "Thành phố không được để trống")
     private String city;
@@ -38,5 +33,4 @@ public class Address {
     @DecimalMin(value = "-180.0", inclusive = true, message = "Longitude không hợp lệ")
     @DecimalMax(value = "180.0", inclusive = true, message = "Longitude không hợp lệ")
     private Double longitude;
-
 }

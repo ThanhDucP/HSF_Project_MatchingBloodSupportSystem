@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}">
+    <title>Đăng ký - Blood Matching Support</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100 bg-light">
+    <!-- Navigation -->
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1 py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-6">
+                    <div class="card shadow">
+                        <div class="card-body p-5">
+                            <!-- Logo/Title -->
+                            <div class="text-center mb-4">
+                                <i class="fas fa-user-plus fa-3x text-danger mb-3"></i>
+                                <h2 class="fw-bold text-danger">Đăng ký tài khoản</h2>
+                                <p class="text-muted">Tham gia cộng đồng hiến máu cứu người</p>
+                            </div>
+
+                            <!-- Success Message -->
+                            <div th:if="${success}" class="alert alert-success" role="alert">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <span th:text="${success}">Đăng ký thành công!</span>
+                            </div>
+
+                            <!-- Error Messages -->
+                            <div th:if="${error}" class="alert alert-danger" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <span th:text="${error}">Có lỗi xảy ra!</span>
+                            </div>
+
+                            <!-- Register Form -->
+                            <form action="#" method="post" id="registerForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="username" class="form-label">
+                                                <i class="fas fa-user me-1"></i>Tên đăng nhập <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" class="form-control" 
+                                                   name="username" id="username" required 
+                                                   placeholder="Nhập tên đăng nhập">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="email" class="form-label">
+                                                <i class="fas fa-envelope me-1"></i>Email <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="email" class="form-control" 
+                                                   name="email" id="email" required 
+                                                   placeholder="Nhập địa chỉ email">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="password" class="form-label">
+                                                <i class="fas fa-lock me-1"></i>Mật khẩu <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="password" class="form-control" 
+                                                       name="password" id="password" required 
+                                                       placeholder="Nhập mật khẩu">
+                                                <button class="btn btn-outline-secondary" type="button" 
+                                                        onclick="togglePassword('password', 'toggleIcon1')">
+                                                    <i class="fas fa-eye" id="toggleIcon1"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="confirmPassword" class="form-label">
+                                                <i class="fas fa-lock me-1"></i>Xác nhận mật khẩu <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="password" class="form-control" 
+                                                       name="confirmPassword" id="confirmPassword" required 
+                                                       placeholder="Nhập lại mật khẩu">
+                                                <button class="btn btn-outline-secondary" type="button" 
+                                                        onclick="togglePassword('confirmPassword', 'toggleIcon2')">
+                                                    <i class="fas fa-eye" id="toggleIcon2"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="fullName" class="form-label">
+                                        <i class="fas fa-id-card me-1"></i>Họ và tên <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" 
+                                           name="fullName" id="fullName" required 
+                                           placeholder="Nhập họ và tên đầy đủ">
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="bloodType" class="form-label">
+                                                <i class="fas fa-tint me-1"></i>Nhóm máu <span class="text-danger">*</span>
+                                            </label>
+                                            <select class="form-select" name="bloodType" id="bloodType" required>
+                                                <option value="">Chọn nhóm máu</option>
+                                                <option value="A+">A+</option>
+                                                <option value="A-">A-</option>
+                                                <option value="B+">B+</option>
+                                                <option value="B-">B-</option>
+                                                <option value="AB+">AB+</option>
+                                                <option value="AB-">AB-</option>
+                                                <option value="O+">O+</option>
+                                                <option value="O-">O-</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="phone" class="form-label">
+                                                <i class="fas fa-phone me-1"></i>Số điện thoại
+                                            </label>
+                                            <input type="tel" class="form-control" 
+                                                   name="phone" id="phone" 
+                                                   placeholder="Nhập số điện thoại">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="address" class="form-label">
+                                        <i class="fas fa-map-marker-alt me-1"></i>Địa chỉ
+                                    </label>
+                                    <textarea class="form-control" name="address" id="address" 
+                                              rows="2" placeholder="Nhập địa chỉ chi tiết"></textarea>
+                                </div>
+
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="agreeTerms" required>
+                                    <label class="form-check-label" for="agreeTerms">
+                                        Tôi đồng ý với <a href="#" class="text-danger">điều khoản sử dụng</a> 
+                                        và <a href="#" class="text-danger">chính sách bảo mật</a> <span class="text-danger">*</span>
+                                    </label>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-danger btn-lg">
+                                        <i class="fas fa-user-plus me-2"></i>Đăng ký tài khoản
+                                    </button>
+                                </div>
+                            </form>
+
+                            <!-- Divider -->
+                            <hr class="my-4">
+
+                            <!-- Login Link -->
+                            <div class="text-center">
+                                <p class="mb-0">Đã có tài khoản?</p>
+                                <a th:href="@{/auth/login}" class="btn btn-outline-danger">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập ngay
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+    
+    <script>
+        function togglePassword(fieldId, iconId) {
+            const passwordField = document.getElementById(fieldId);
+            const toggleIcon = document.getElementById(iconId);
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+    </script>
+</body>
+</html>

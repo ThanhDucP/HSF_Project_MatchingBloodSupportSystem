@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}">
+    <title>Đăng nhập - Blood Matching Support</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100 bg-light">
+    <!-- Navigation -->
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1 d-flex align-items-center py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-lg-4">
+                    <div class="card shadow">
+                        <div class="card-body p-5">
+                            <!-- Logo/Title -->
+                            <div class="text-center mb-4">
+                                <i class="fas fa-heart fa-3x text-danger mb-3"></i>
+                                <h2 class="fw-bold text-danger">Đăng nhập</h2>
+                                <p class="text-muted">Đăng nhập vào tài khoản của bạn</p>
+                            </div>
+
+                            <!-- Error Messages -->
+                            <div th:if="${param.error}" class="alert alert-danger" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Tên đăng nhập hoặc mật khẩu không đúng!
+                            </div>
+
+                            <div th:if="${param.logout}" class="alert alert-success" role="alert">
+                                <i class="fas fa-check-circle me-2"></i>
+                                Bạn đã đăng xuất thành công!
+                            </div>
+
+                            <!-- Login Form -->
+                            <form id="loginForm">
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">
+                                        <i class="fas fa-user me-1"></i>Tên đăng nhập
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg" 
+                                           id="username" name="username" required 
+                                           placeholder="Nhập tên đăng nhập">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">
+                                        <i class="fas fa-lock me-1"></i>Mật khẩu
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control form-control-lg" 
+                                               id="password" name="password" required 
+                                               placeholder="Nhập mật khẩu">
+                                        <button class="btn btn-outline-secondary" type="button" 
+                                                onclick="togglePassword()">
+                                            <i class="fas fa-eye" id="toggleIcon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="remember" name="remember-me">
+                                    <label class="form-check-label" for="remember">
+                                        Ghi nhớ đăng nhập
+                                    </label>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-danger btn-lg">
+                                        <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
+                                    </button>
+                                </div>
+                            </form>
+
+                            <!-- Divider -->
+                            <hr class="my-4">
+
+                            <!-- Register Link -->
+                            <div class="text-center">
+                                <p class="mb-0">Chưa có tài khoản?</p>
+                                <a th:href="@{/auth/register}" class="btn btn-outline-danger">
+                                    <i class="fas fa-user-plus me-2"></i>Đăng ký ngay
+                                </a>
+                            </div>
+
+                            <!-- Forgot Password -->
+                            <div class="text-center mt-3">
+                                <a href="#" class="text-muted text-decoration-none">
+                                    <i class="fas fa-question-circle me-1"></i>Quên mật khẩu?
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Card -->
+                    <div class="card mt-4 border-info">
+                        <div class="card-body text-center">
+                            <i class="fas fa-info-circle text-info me-2"></i>
+                            <small class="text-muted">
+                                Bạn cần đăng nhập để tạo đơn xin máu và nhận thông báo
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+    
+    <script>
+        function togglePassword() {
+            const passwordField = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userName: username,
+                        password: password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.token) {
+                    // Store JWT token
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('accountId', data.accountId);
+                    
+                    // Show success message
+                    showAlert('success', 'Đăng nhập thành công!');
+                    
+                    // Redirect to home page after 1 second
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                } else {
+                    showAlert('danger', data.message || 'Đăng nhập thất bại!');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showAlert('danger', 'Lỗi kết nối! Vui lòng thử lại.');
+            }
+        });
+
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            // Insert at the top of the card body
+            const cardBody = document.querySelector('.card-body');
+            cardBody.insertBefore(alertDiv, cardBody.firstChild);
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

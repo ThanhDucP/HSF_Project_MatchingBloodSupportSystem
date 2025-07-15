@@ -55,7 +55,7 @@ public class JwtUtil {
         return claimsResolver.apply(claims);
     }
 
-    public String extractAccountId(String token) {
+    public String   extractAccountId(String token) {
         return extractAllClaims(token).getSubject();
     }
 

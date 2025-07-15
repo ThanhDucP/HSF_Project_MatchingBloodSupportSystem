@@ -1,10 +1,13 @@
 package com.chillguy.tiny.blood.config;
 
+import java.util.Arrays;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,12 +19,10 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
-
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
+@EnableMethodSecurity
 public class SecurityConfig {
-
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -36,29 +37,36 @@ public class SecurityConfig {
 
 
     @Bean
-
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable()) // Disable CSRF completely for simplicity
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Keep stateless for JWT
                 .authorizeHttpRequests(auth -> auth
-                        // Swagger & public
+                        // Static resources (CSS, JS, Images)
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
+                        
+                        // Swagger & API docs
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**", "/webjars/**").permitAll()
+                        
+                        // Public pages (serve via templates but no auth needed)
+                        .requestMatchers("/", "/index", "/home", "/about").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/blood-requests/**").permitAll() // Allow template access
+                        
+                        // Public API endpoints
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/blood-request-controller/confirmByToken").permitAll()
-
-
-
-
-
-                        // Tất cả còn lại yêu cầu login
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/blood-requests/confirm-by-token").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/blood-requests/getall").permitAll() // Allow viewing all requests
+                        
+                        // Protected API endpoints (require JWT token)
+                        .requestMatchers("/api/blood-requests/**").authenticated()
+                        .requestMatchers("/api/auth/reset-password").authenticated()
+                        
+                        // All other requests are permitted (mainly for templates)
+                        .anyRequest().permitAll()
                 )
-
-
-
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

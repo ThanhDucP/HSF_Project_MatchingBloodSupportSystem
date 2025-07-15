@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head}">
+    <title>Trang chủ - Blood Matching Support</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    <!-- Navigation -->
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1">
+        <!-- Hero Section -->
+        <section class="bg-gradient-danger text-white py-5">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <h1 class="display-4 fw-bold mb-4">
+                            <i class="fas fa-heart text-white me-3"></i>
+                            Cứu Sống Bằng Máu
+                        </h1>
+                        <p class="lead mb-4">
+                            Hệ thống kết nối người cần máu với người hiến máu một cách nhanh chóng và hiệu quả. 
+                            Mỗi giọt máu đều có thể cứu sống một sinh mạng.
+                        </p>
+                        <div class="d-flex gap-3 flex-wrap">
+                            <a href="/blood-requests/create" class="btn btn-light btn-lg" data-auth-required style="display: none;">
+                                <i class="fas fa-plus me-2"></i>Tạo đơn xin máu
+                            </a>
+                            <a href="/auth/register" class="btn btn-outline-light btn-lg" data-guest-only>
+                                <i class="fas fa-user-plus me-2"></i>Đăng ký ngay
+                            </a>
+                            <a href="/blood-requests" class="btn btn-outline-light btn-lg">
+                                <i class="fas fa-list me-2"></i>Xem đơn xin máu
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 text-center">
+                        <i class="fas fa-heartbeat display-1 text-white opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="py-5">
+            <div class="container">
+                <div class="row text-center mb-5">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-danger">Tính năng nổi bật</h2>
+                        <p class="text-muted">Hệ thống tự động và thông minh</p>
+                    </div>
+                </div>
+                
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center p-4">
+                                <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                    <i class="fas fa-search-location fa-2x text-danger"></i>
+                                </div>
+                                <h5 class="card-title">Tìm kiếm thông minh</h5>
+                                <p class="card-text text-muted">
+                                    Tự động tìm kiếm người hiến máu phù hợp dựa trên nhóm máu và khoảng cách địa lý
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center p-4">
+                                <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                    <i class="fas fa-envelope fa-2x text-danger"></i>
+                                </div>
+                                <h5 class="card-title">Thông báo tự động</h5>
+                                <p class="card-text text-muted">
+                                    Gửi email thông báo đến người hiến máu phù hợp với link xác nhận nhanh chóng
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center p-4">
+                                <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                    <i class="fas fa-chart-line fa-2x text-danger"></i>
+                                </div>
+                                <h5 class="card-title">Theo dõi realtime</h5>
+                                <p class="card-text text-muted">
+                                    Theo dõi trạng thái đơn xin máu và số lượng người xác nhận hiến máu
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Blood Types Section -->
+        <section class="bg-light py-5">
+            <div class="container">
+                <div class="row text-center mb-5">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-danger">Các nhóm máu</h2>
+                        <p class="text-muted">Hiểu về tính tương thích nhóm máu</p>
+                    </div>
+                </div>
+                
+                <div class="row g-3">
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card text-center border-danger">
+                            <div class="card-body">
+                                <h3 class="text-danger fw-bold">A+</h3>
+                                <small class="text-muted">Hiến cho: A+, AB+</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card text-center border-danger">
+                            <div class="card-body">
+                                <h3 class="text-danger fw-bold">A-</h3>
+                                <small class="text-muted">Hiến cho: A+, A-, AB+, AB-</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card text-center border-danger">
+                            <div class="card-body">
+                                <h3 class="text-danger fw-bold">B+</h3>
+                                <small class="text-muted">Hiến cho: B+, AB+</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card text-center border-danger">
+                            <div class="card-body">
+                                <h3 class="text-danger fw-bold">B-</h3>
+                                <small class="text-muted">Hiến cho: B+, B-, AB+, AB-</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card text-center border-danger">
+                            <div class="card-body">
+                                <h3 class="text-danger fw-bold">AB+</h3>
+                                <small class="text-muted">Hiến cho: AB+</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card text-center border-danger">
+                            <div class="card-body">
+                                <h3 class="text-danger fw-bold">AB-</h3>
+                                <small class="text-muted">Hiến cho: AB+, AB-</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card text-center border-danger">
+                            <div class="card-body">
+                                <h3 class="text-danger fw-bold">O+</h3>
+                                <small class="text-muted">Hiến cho: A+, B+, AB+, O+</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card text-center border-success">
+                            <div class="card-body">
+                                <h3 class="text-success fw-bold">O-</h3>
+                                <small class="text-success"><strong>Hiến cho: Tất cả</strong></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics Section -->
+        <section class="py-5" sec:authorize="isAuthenticated()">
+            <div class="container">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="card border-0">
+                            <div class="card-body">
+                                <h2 class="text-danger fw-bold" th:text="${totalRequests != null ? totalRequests : '0'}">0</h2>
+                                <p class="text-muted mb-0">Tổng đơn xin máu</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0">
+                            <div class="card-body">
+                                <h2 class="text-success fw-bold" th:text="${completedRequests != null ? completedRequests : '0'}">0</h2>
+                                <p class="text-muted mb-0">Đơn hoàn thành</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0">
+                            <div class="card-body">
+                                <h2 class="text-warning fw-bold" th:text="${pendingRequests != null ? pendingRequests : '0'}">0</h2>
+                                <p class="text-muted mb-0">Đơn đang xử lý</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0">
+                            <div class="card-body">
+                                <h2 class="text-info fw-bold" th:text="${totalDonors != null ? totalDonors : '0'}">0</h2>
+                                <p class="text-muted mb-0">Người hiến máu</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

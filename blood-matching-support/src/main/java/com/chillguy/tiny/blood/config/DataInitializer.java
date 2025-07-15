@@ -8,6 +8,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ThreadLocalRandom;
@@ -21,6 +22,7 @@ public class DataInitializer {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final BloodRepository bloodRepository;
+    private final ProfileRepository profileRepository;
 
     private static final String ROLE_ADMIN = "ADMIN";
     private static final String ROLE_STAFF = "STAFF";
@@ -30,6 +32,7 @@ public class DataInitializer {
     public void initializeDefaultData() {
         initRolesAndAccounts();
         initBloodSamples();
+        initProfiles();
     }
 
     private void initRolesAndAccounts() {
@@ -41,6 +44,59 @@ public class DataInitializer {
         createAccountIfNotExist("staff", "staff@hospital.local", ROLE_STAFF);
         createAccountIfNotExist("member", "member@user.local", ROLE_MEMBER);
     }
+
+    private void initProfiles() {
+        createProfileIfNotExist("admin", "Nguyễn Văn Admin", "0901234567", LocalDate.of(1985, 5, 15), true);
+        createProfileIfNotExist("staff", "Trần Thị Staff", "0912345678", LocalDate.of(1990, 8, 20), false);
+        createProfileIfNotExist("member", "Lê Văn Member", "0923456789", LocalDate.of(2000, 2, 10), true);
+    }
+
+    private void createProfileIfNotExist(String username, String fullName, String phone, LocalDate dob, boolean gender) {
+        Account account = accountRepository.findByUserNameIgnoreCase(username)
+                .orElseThrow(() -> new IllegalStateException("Account not found: " + username));
+
+        if (profileRepository.existsByAccount(account)) {
+            System.out.printf("Profile already exists for: %s%n", username);
+            return;
+        }
+
+        Blood sampleBlood = bloodRepository.findAll().stream().findFirst()
+                .orElseThrow(() -> new IllegalStateException("No blood sample found"));
+
+        Address address = Address.builder()
+                .city("Hồ Chí Minh")
+                .district("Quận 1")
+                .ward("Phường Bến Nghé")
+                .street("Lê Duẩn")
+                .latitude(10.7769)
+                .longitude(106.7009)
+                .build();
+
+        Profile profile = Profile.builder()
+                .profileId(generateProfileId())
+                .account(account)
+                .name(fullName)
+                .phone(phone)
+                .dob(dob)
+                .gender(gender)
+                .address(address)
+                .numberOfBloodDonation(0L)
+                .restDate(LocalDate.now().plusMonths(3))
+                .bloodCode(sampleBlood)
+                .build();
+
+        profileRepository.save(profile);
+        System.out.printf("✅ Created profile for account: %s%n", username);
+    }
+
+    private String generateProfileId() {
+        String datePart = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        int random = ThreadLocalRandom.current().nextInt(0, 1000); // 0 to 999
+        String randomPart = String.format("%03d", random); // zero-padded to 3 digits
+        return "PR-" + datePart + "-" + randomPart;
+    }
+
+
 
     private void createRoleIfNotExist(String roleName, String description) {
         if (!roleRepository.existsByRoleIs(roleName)) {
@@ -62,8 +118,7 @@ public class DataInitializer {
                     .password(passwordEncoder.encode("12345678"))
                     .email(email)
                     .isActive(true)
-                    .role(roleRepository.findByRole(roleName)
-                            .orElseThrow(() -> new IllegalStateException("Role not found: " + roleName)))
+                    .role(roleRepository.findByRole(roleName))
                     .build();
 
             accountRepository.save(account);
@@ -102,8 +157,6 @@ public class DataInitializer {
 
         return List.of("AB-", "B-", "A-", "O-").contains(code);
     }
-
-
 
     private String generateBloodCode(Blood.BloodType type, Blood.RhFactor rh, Blood.ComponentType comp) {
         return type.name() + "_" + (rh == Blood.RhFactor.POSITIVE ? "POS" : "NEG") + "_" + comp.name();
