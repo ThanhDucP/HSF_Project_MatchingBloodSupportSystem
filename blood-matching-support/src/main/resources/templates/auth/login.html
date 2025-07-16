@@ -133,8 +133,14 @@
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            // Validate inputs
+            if (!username || !password) {
+                showAlert('danger', 'Username hoặc mật khẩu không được để trống!');
+                return;
+            }
             
             try {
                 const response = await fetch('/api/auth/login', {
@@ -143,7 +149,7 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        userName: username,
+                        username: username,  // Sửa từ userName thành username
                         password: password
                     })
                 });
@@ -151,9 +157,10 @@
                 const data = await response.json();
                 
                 if (response.ok && data.token) {
-                    // Store JWT token
+                    // Store JWT token and user info
                     localStorage.setItem('authToken', data.token);
                     localStorage.setItem('accountId', data.accountId);
+                    localStorage.setItem('userRole', data.role);
                     
                     // Show success message
                     showAlert('success', 'Đăng nhập thành công!');

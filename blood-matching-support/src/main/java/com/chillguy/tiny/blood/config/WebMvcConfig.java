@@ -18,6 +18,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addViewController("/auth/login").setViewName("auth/login");
         registry.addViewController("/auth/register").setViewName("auth/register");
         
+        // Map blood request pages directly to templates
         registry.addViewController("/blood-requests").setViewName("blood-request/list");
         registry.addViewController("/blood-requests/create").setViewName("blood-request/create");
     }

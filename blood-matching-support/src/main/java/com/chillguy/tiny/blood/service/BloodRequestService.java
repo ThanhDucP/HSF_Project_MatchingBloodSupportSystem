@@ -1,16 +1,27 @@
 package com.chillguy.tiny.blood.service;
 
-import com.chillguy.tiny.blood.dto.BloodRequestDTO;
-import com.chillguy.tiny.blood.dto.BloodRequestResponseDTO;
-import com.chillguy.tiny.blood.entity.*;
-import com.chillguy.tiny.blood.repository.*;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
+import com.chillguy.tiny.blood.dto.BloodRequestDTO;
+import com.chillguy.tiny.blood.dto.BloodRequestResponseDTO;
+import com.chillguy.tiny.blood.entity.Account;
+import com.chillguy.tiny.blood.entity.Blood;
+import com.chillguy.tiny.blood.entity.BloodCompatibility;
+import com.chillguy.tiny.blood.entity.BloodRequest;
+import com.chillguy.tiny.blood.entity.Profile;
+import com.chillguy.tiny.blood.repository.AccountRepository;
+import com.chillguy.tiny.blood.repository.BloodRepository;
+import com.chillguy.tiny.blood.repository.BloodRequestRepository;
+import com.chillguy.tiny.blood.repository.ProfileRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -23,9 +34,26 @@ public class BloodRequestService {
     private final BloodRepository bloodRepo;
 
     public BloodRequestResponseDTO createRequest(BloodRequestDTO dto, String accountId) {
+        System.out.println("DEBUG - Tìm accountId: " + accountId);
         Account acc = accountRepo.findByAccountId(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản với accountId: " + accountId));
-        Blood blood = bloodRepo.findByBloodCode(dto.getBloodCode());
+        
+        System.out.println("DEBUG - Tìm bloodCode: " + dto.getBloodCode());
+        
+        // Convert frontend format to database format
+        // Frontend: A_POSITIVE_RED_BLOOD_CELL → Database: A_POS_RED_BLOOD_CELL
+        String dbBloodCode = dto.getBloodCode()
+                .replace("_POSITIVE_", "_POS_")
+                .replace("_NEGATIVE_", "_NEG_");
+        
+        System.out.println("DEBUG - Converted bloodCode: " + dbBloodCode);
+        
+        Blood blood = bloodRepo.findByBloodCode(dbBloodCode);
+        System.out.println("DEBUG - Kết quả blood: " + (blood != null ? blood.getBloodCode() : "NULL"));
+        
+        if (blood == null) {
+            throw new IllegalArgumentException("Không tìm thấy loại máu với mã: " + dto.getBloodCode() + " (converted: " + dbBloodCode + ")");
+        }
 
         boolean hasUnfinished = requestRepo.existsByAccount_AccountIdAndStatusIn(
                 accountId, List.of(BloodRequest.Status.PENDING, BloodRequest.Status.MATCHED, BloodRequest.Status.CONFIRMED));

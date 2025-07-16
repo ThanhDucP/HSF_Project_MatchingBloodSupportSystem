@@ -86,10 +86,14 @@ public class BloodRequestController {
     public ResponseEntity<?> create(@Valid @RequestBody BloodRequestDTO dto) {
         try {
             String accountId = SecurityContextHolder.getContext().getAuthentication().getName();
+            System.out.println("DEBUG - AccountId from token: " + accountId);
             return ResponseEntity.ok(service.createRequest(dto, accountId));
         } catch (IllegalArgumentException e) {
+            System.out.println("DEBUG - IllegalArgumentException: " + e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
+            System.out.println("DEBUG - Exception: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.internalServerError().body("Lỗi hệ thống: " + e.getMessage());
         }
     }

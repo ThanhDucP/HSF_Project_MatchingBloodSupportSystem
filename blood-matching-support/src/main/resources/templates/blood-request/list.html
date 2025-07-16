@@ -20,7 +20,7 @@
                     <p class="text-muted mb-0">Theo dõi và quản lý các đơn xin máu</p>
                 </div>
                 <div class="col-md-4 text-md-end">
-                    <a th:href="@{/blood-requests/create}" class="btn btn-danger" sec:authorize="isAuthenticated()">
+                    <a th:href="@{/blood-requests/create}" class="btn btn-danger" sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_MEMBER')">
                         <i class="fas fa-plus me-2"></i>Tạo đơn mới
                     </a>
                 </div>
@@ -29,41 +29,44 @@
             <!-- Filter and Search -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <form method="get" th:action="@{/blood-requests}">
+                    <form id="filterForm">
                         <div class="row g-3 align-items-end">
                             <div class="col-md-3">
                                 <label for="statusFilter" class="form-label">Trạng thái</label>
-                                <select class="form-select" id="statusFilter" name="status" th:value="${currentStatus}">
+                                <select class="form-select" id="statusFilter" name="status">
                                     <option value="">Tất cả trạng thái</option>
-                                    <option value="PENDING" th:selected="${currentStatus == 'PENDING'}">Đang chờ</option>
-                                    <option value="MATCHED" th:selected="${currentStatus == 'MATCHED'}">Đã ghép</option>
-                                    <option value="CONFIRMED" th:selected="${currentStatus == 'CONFIRMED'}">Đã xác nhận</option>
-                                    <option value="COMPLETED" th:selected="${currentStatus == 'COMPLETED'}">Hoàn thành</option>
-                                    <option value="CANCELLED" th:selected="${currentStatus == 'CANCELLED'}">Đã hủy</option>
+                                    <option value="PENDING">Đang chờ</option>
+                                    <option value="MATCHED">Đã ghép</option>
+                                    <option value="CONFIRMED">Đã xác nhận</option>
+                                    <option value="COMPLETED">Hoàn thành</option>
+                                    <option value="CANCELLED">Đã hủy</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
                                 <label for="bloodTypeFilter" class="form-label">Nhóm máu</label>
-                                <select class="form-select" id="bloodTypeFilter" name="bloodType" th:value="${currentBloodType}">
+                                <select class="form-select" id="bloodTypeFilter" name="bloodType">
                                     <option value="">Tất cả nhóm máu</option>
-                                    <option value="A+" th:selected="${currentBloodType == 'A+'}">A+</option>
-                                    <option value="A-" th:selected="${currentBloodType == 'A-'}">A-</option>
-                                    <option value="B+" th:selected="${currentBloodType == 'B+'}">B+</option>
-                                    <option value="B-" th:selected="${currentBloodType == 'B-'}">B-</option>
-                                    <option value="AB+" th:selected="${currentBloodType == 'AB+'}">AB+</option>
-                                    <option value="AB-" th:selected="${currentBloodType == 'AB-'}">AB-</option>
-                                    <option value="O+" th:selected="${currentBloodType == 'O+'}">O+</option>
-                                    <option value="O-" th:selected="${currentBloodType == 'O-'}">O-</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label for="searchKeyword" class="form-label">Tìm kiếm</label>
-                                <input type="text" class="form-control" id="searchKeyword" name="keyword" 
-                                       th:value="${currentKeyword}" placeholder="Tên bệnh nhân...">
+                                <label for="keywordFilter" class="form-label">Tìm kiếm</label>
+                                <input type="text" class="form-control" id="keywordFilter" name="keyword" 
+                                       placeholder="Tên bệnh nhân...">
                             </div>
                             <div class="col-md-2">
                                 <button type="submit" class="btn btn-primary w-100">
                                     <i class="fas fa-search me-1"></i>Lọc
+                                </button>
+                                <button type="button" id="resetFilter" class="btn btn-outline-secondary w-100 mt-1">
+                                    <i class="fas fa-undo me-1"></i>Reset
                                 </button>
                             </div>
                         </div>
@@ -77,7 +80,7 @@
                     <div class="card border-warning">
                         <div class="card-body text-center">
                             <i class="fas fa-clock fa-2x text-warning mb-2"></i>
-                            <h4 class="text-warning mb-0" th:text="${stats.pending}">0</h4>
+                            <h4 class="text-warning mb-0" id="pendingCount">0</h4>
                             <small class="text-muted">Đang chờ</small>
                         </div>
                     </div>
@@ -86,7 +89,7 @@
                     <div class="card border-info">
                         <div class="card-body text-center">
                             <i class="fas fa-link fa-2x text-info mb-2"></i>
-                            <h4 class="text-info mb-0" th:text="${stats.matched}">0</h4>
+                            <h4 class="text-info mb-0" id="matchedCount">0</h4>
                             <small class="text-muted">Đã ghép</small>
                         </div>
                     </div>
@@ -95,7 +98,7 @@
                     <div class="card border-primary">
                         <div class="card-body text-center">
                             <i class="fas fa-check fa-2x text-primary mb-2"></i>
-                            <h4 class="text-primary mb-0" th:text="${stats.confirmed}">0</h4>
+                            <h4 class="text-primary mb-0" id="confirmedCount">0</h4>
                             <small class="text-muted">Đã xác nhận</small>
                         </div>
                     </div>
@@ -104,7 +107,7 @@
                     <div class="card border-success">
                         <div class="card-body text-center">
                             <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
-                            <h4 class="text-success mb-0" th:text="${stats.completed}">0</h4>
+                            <h4 class="text-success mb-0" id="completedCount">0</h4>
                             <small class="text-muted">Hoàn thành</small>
                         </div>
                     </div>
@@ -116,7 +119,7 @@
                 <div class="card-header">
                     <h5 class="mb-0">
                         <i class="fas fa-table me-2"></i>Danh sách đơn xin máu
-                        <span class="badge bg-secondary ms-2" th:text="${#lists.size(bloodRequests)}">0</span>
+                        <span class="badge bg-secondary ms-2" id="totalCount">0</span>
                     </h5>
                 </div>
                 <div class="card-body p-0">
@@ -135,77 +138,13 @@
                                     <th class="text-center">Thao tác</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr th:if="${#lists.isEmpty(bloodRequests)}">
+                            <tbody id="bloodRequestsTableBody">
+                                <!-- Data will be loaded by JavaScript -->
+                                <tr>
                                     <td colspan="9" class="text-center py-4 text-muted">
-                                        <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
-                                        Không có đơn xin máu nào
-                                    </td>
-                                </tr>
-                                <tr th:each="request : ${bloodRequests}">
-                                    <td>
-                                        <code class="text-muted" th:text="${#strings.abbreviate(request.requestId, 8)}">REQ001</code>
-                                    </td>
-                                    <td>
-                                        <strong th:text="${request.patientName}">Nguyễn Văn A</strong>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-danger" th:text="${request.bloodCode}">A+</span>
-                                    </td>
-                                    <td>
-                                        <span th:text="${request.volume + ' ml'}">500 ml</span>
-                                    </td>
-                                    <td>
-                                        <span th:text="${#temporals.format(request.requestDate, 'dd/MM/yyyy')}">01/01/2025</span>
-                                    </td>
-                                    <td>
-                                        <span th:switch="${request.status}" class="badge">
-                                            <span th:case="'PENDING'" class="badge bg-warning text-dark">Đang chờ</span>
-                                            <span th:case="'MATCHED'" class="badge bg-info">Đã ghép</span>
-                                            <span th:case="'CONFIRMED'" class="badge bg-primary">Đã xác nhận</span>
-                                            <span th:case="'COMPLETED'" class="badge bg-success">Hoàn thành</span>
-                                            <span th:case="'CANCELLED'" class="badge bg-secondary">Đã hủy</span>
-                                        </span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge bg-light text-dark" th:text="${request.confirmedCount}">0</span>
-                                        <small class="text-muted">người</small>
-                                    </td>
-                                    <td class="text-center">
-                                        <i th:if="${request.emergency}" class="fas fa-exclamation-triangle text-warning" 
-                                           title="Khẩn cấp"></i>
-                                        <i th:unless="${request.emergency}" class="fas fa-minus text-muted"></i>
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="btn-group" role="group">
-                                            <a th:href="@{/blood-requests/{id}(id=${request.requestId})}" 
-                                               class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" 
-                                                    data-bs-toggle="dropdown" title="Thao tác khác">
-                                                <i class="fas fa-ellipsis-v"></i>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li th:if="${request.status == 'PENDING' or request.status == 'MATCHED'}">
-                                                    <a class="dropdown-item" href="#" 
-                                                       th:onclick="|updateStatus('${request.requestId}', 'CONFIRMED')|">
-                                                        <i class="fas fa-check me-2"></i>Xác nhận
-                                                    </a>
-                                                </li>
-                                                <li th:if="${request.status == 'CONFIRMED'}">
-                                                    <a class="dropdown-item" href="#" 
-                                                       th:onclick="|updateStatus('${request.requestId}', 'COMPLETED')|">
-                                                        <i class="fas fa-check-circle me-2"></i>Hoàn thành
-                                                    </a>
-                                                </li>
-                                                <li th:if="${request.status != 'COMPLETED' and request.status != 'CANCELLED'}">
-                                                    <a class="dropdown-item text-danger" href="#" 
-                                                       th:onclick="|updateStatus('${request.requestId}', 'CANCELLED')|">
-                                                        <i class="fas fa-times me-2"></i>Hủy đơn
-                                                    </a>
-                                                </li>
-                                            </ul>
+                                        <div id="loadingSpinner">
+                                            <i class="fas fa-spinner fa-spin fa-2x mb-3 d-block"></i>
+                                            Đang tải dữ liệu...
                                         </div>
                                     </td>
                                 </tr>
@@ -216,25 +155,9 @@
             </div>
 
             <!-- Pagination -->
-            <nav th:if="${totalPages > 1}" class="mt-4">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                        <a class="page-link" th:href="@{/blood-requests(page=${currentPage - 1}, status=${currentStatus}, bloodType=${currentBloodType}, keyword=${currentKeyword})}">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                    </li>
-                    
-                    <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
-                        class="page-item" th:classappend="${i == currentPage} ? 'active'">
-                        <a class="page-link" th:href="@{/blood-requests(page=${i}, status=${currentStatus}, bloodType=${currentBloodType}, keyword=${currentKeyword})}" 
-                           th:text="${i + 1}">1</a>
-                    </li>
-                    
-                    <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                        <a class="page-link" th:href="@{/blood-requests(page=${currentPage + 1}, status=${currentStatus}, bloodType=${currentBloodType}, keyword=${currentKeyword})}">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                    </li>
+            <nav class="mt-4" id="paginationNav" style="display: none;">
+                <ul class="pagination justify-content-center" id="paginationList">
+                    <!-- Pagination will be generated by JavaScript -->
                 </ul>
             </nav>
         </div>
@@ -246,29 +169,7 @@
     <!-- Scripts -->
     <div th:replace="~{fragments/layout :: scripts}"></div>
     
-    <script>
-        function updateStatus(requestId, newStatus) {
-            if (confirm('Bạn có chắc chắn muốn cập nhật trạng thái này?')) {
-                fetch(`/api/blood-requests/${requestId}/status`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ status: newStatus })
-                })
-                .then(response => {
-                    if (response.ok) {
-                        location.reload();
-                    } else {
-                        alert('Có lỗi xảy ra khi cập nhật trạng thái');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Có lỗi xảy ra khi cập nhật trạng thái');
-                });
-            }
-        }
-    </script>
+    <!-- Blood Requests JavaScript -->
+    <script src="/js/blood-requests.js"></script>
 </body>
 </html>

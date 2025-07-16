@@ -22,151 +22,134 @@
 
                     <div class="card shadow">
                         <div class="card-body p-4">
-                            <!-- Success Message -->
-                            <div th:if="${success}" class="alert alert-success" role="alert">
-                                <i class="fas fa-check-circle me-2"></i>
-                                <span th:text="${success}">Tạo đơn thành công!</span>
-                            </div>
-
-                            <!-- Error Messages -->
-                            <div th:if="${error}" class="alert alert-danger" role="alert">
-                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                <span th:text="${error}">Có lỗi xảy ra!</span>
-                            </div>
-
-                            <!-- Warning for existing request -->
-                            <div class="alert alert-warning" role="alert">
+                            <!-- Warning for authentication -->
+                            <div class="alert alert-warning" role="alert" id="authWarning" style="display: none;">
                                 <i class="fas fa-info-circle me-2"></i>
-                                <strong>Lưu ý:</strong> Bạn chỉ có thể có 1 đơn xin máu đang hoạt động. 
-                                Nếu đã có đơn chưa hoàn thành, vui lòng hủy đơn cũ trước khi tạo đơn mới.
+                                <strong>Lưu ý:</strong> Bạn cần đăng nhập để tạo đơn xin máu. 
+                                <a href="/auth/login" class="alert-link">Đăng nhập ngay</a>
                             </div>
 
                             <!-- Create Request Form -->
-                            <form th:action="@{/blood-requests/create}" method="post" th:object="${bloodRequestDTO}">
-                                <div class="mb-3">
-                                    <label for="patientName" class="form-label">
-                                        <i class="fas fa-user-injured me-1"></i>Tên bệnh nhân <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" class="form-control form-control-lg" 
-                                           th:field="*{patientName}" id="patientName" required 
-                                           placeholder="Nhập tên bệnh nhân cần máu">
-                                    <div th:if="${#fields.hasErrors('patientName')}" class="text-danger small">
-                                        <span th:errors="*{patientName}"></span>
+                            <form id="bloodRequestForm" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="patientName" class="form-label">
+                                            <i class="fas fa-user-injured me-1"></i>Tên bệnh nhân <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" 
+                                               id="patientName" name="patientName" required 
+                                               placeholder="Nhập tên bệnh nhân">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="requestDate" class="form-label">
+                                            <i class="fas fa-calendar-alt me-1"></i>Ngày cần máu <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="date" class="form-control" 
+                                               id="requestDate" name="requestDate" required>
+                                        <div class="invalid-feedback"></div>
                                     </div>
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="bloodCode" class="form-label">
-                                                <i class="fas fa-tint me-1"></i>Nhóm máu cần <span class="text-danger">*</span>
-                                            </label>
-                                            <select class="form-select form-select-lg" th:field="*{bloodCode}" id="bloodCode" required>
-                                                <option value="">Chọn nhóm máu</option>
-                                                <option value="A+">A+ (A Rh dương)</option>
-                                                <option value="A-">A- (A Rh âm)</option>
-                                                <option value="B+">B+ (B Rh dương)</option>
-                                                <option value="B-">B- (B Rh âm)</option>
-                                                <option value="AB+">AB+ (AB Rh dương)</option>
-                                                <option value="AB-">AB- (AB Rh âm)</option>
-                                                <option value="O+">O+ (O Rh dương)</option>
-                                                <option value="O-">O- (O Rh âm - Hiếm)</option>
-                                            </select>
-                                            <div th:if="${#fields.hasErrors('bloodCode')}" class="text-danger small">
-                                                <span th:errors="*{bloodCode}"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="volume" class="form-label">
-                                                <i class="fas fa-flask me-1"></i>Lượng máu cần (ml) <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="number" class="form-control form-control-lg" 
-                                                   th:field="*{volume}" id="volume" required 
-                                                   min="100" max="2000" step="50"
-                                                   placeholder="VD: 500">
-                                            <div class="form-text">
-                                                <i class="fas fa-info-circle text-muted me-1"></i>
-                                                Thường từ 200-500ml, tối đa 2000ml
-                                            </div>
-                                            <div th:if="${#fields.hasErrors('volume')}" class="text-danger small">
-                                                <span th:errors="*{volume}"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="requestDate" class="form-label">
-                                        <i class="fas fa-calendar-alt me-1"></i>Ngày cần máu <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="date" class="form-control form-control-lg" 
-                                           th:field="*{requestDate}" id="requestDate" required>
-                                    <div class="form-text">
-                                        <i class="fas fa-clock text-muted me-1"></i>
-                                        Ngày dự kiến cần sử dụng máu
-                                    </div>
-                                    <div th:if="${#fields.hasErrors('requestDate')}" class="text-danger small">
-                                        <span th:errors="*{requestDate}"></span>
-                                    </div>
-                                </div>
-
-                                <div class="mb-4">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" 
-                                               th:field="*{emergency}" id="emergency">
-                                        <label class="form-check-label" for="emergency">
-                                            <i class="fas fa-exclamation-triangle text-warning me-1"></i>
-                                            <strong>Trường hợp khẩn cấp</strong>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="bloodType" class="form-label">
+                                            <i class="fas fa-tint me-1"></i>Nhóm máu <span class="text-danger">*</span>
                                         </label>
+                                        <select class="form-select" id="bloodType" name="bloodType" required>
+                                            <option value="">Chọn nhóm máu</option>
+                                            <option value="A">A</option>
+                                            <option value="B">B</option>
+                                            <option value="AB">AB</option>
+                                            <option value="O">O</option>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
                                     </div>
-                                    <div class="form-text">
-                                        <i class="fas fa-info-circle text-muted me-1"></i>
-                                        Đánh dấu nếu cần máu gấp trong 24h
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="rhFactor" class="form-label">
+                                            <i class="fas fa-plus-circle me-1"></i>Yếu tố Rh <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-select" id="rhFactor" name="rhFactor" required>
+                                            <option value="">Chọn Rh</option>
+                                            <option value="POSITIVE">Dương (+)</option>
+                                            <option value="NEGATIVE">Âm (-)</option>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
                                     </div>
                                 </div>
 
-                                <!-- Blood Compatibility Info -->
-                                <div class="alert alert-info">
-                                    <h6 class="alert-heading">
-                                        <i class="fas fa-info-circle me-2"></i>Thông tin tương thích máu
-                                    </h6>
-                                    <div class="row g-2 small">
-                                        <div class="col-6">
-                                            <strong>Có thể nhận từ:</strong>
-                                            <div id="compatibleDonors" class="text-muted">Chọn nhóm máu để xem</div>
-                                        </div>
-                                        <div class="col-6">
-                                            <strong>Hiếm gặp:</strong>
-                                            <div class="text-muted">AB-, O- (cần ưu tiên)</div>
-                                        </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="componentType" class="form-label">
+                                            <i class="fas fa-flask me-1"></i>Loại thành phần máu <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-select" id="componentType" name="componentType" required>
+                                            <option value="">Chọn loại thành phần</option>
+                                            <option value="RED_BLOOD_CELL">Hồng cầu</option>
+                                            <option value="PLASMA">Plasma</option>
+                                            <option value="PLATELET">Tiểu cầu</option>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="volume" class="form-label">
+                                            <i class="fas fa-thermometer-half me-1"></i>Thể tích cần (ml) <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" class="form-control" 
+                                               id="volume" name="volume" required 
+                                               min="1" step="1" placeholder="Ví dụ: 500">
+                                        <div class="form-text">Đơn vị tính: ml (milliliter)</div>
+                                        <div class="invalid-feedback"></div>
                                     </div>
                                 </div>
 
-                                <div class="d-grid gap-2">
-                                    <button type="submit" class="btn btn-danger btn-lg">
-                                        <i class="fas fa-paper-plane me-2"></i>Gửi đơn xin máu
-                                    </button>
-                                    <a th:href="@{/blood-requests}" class="btn btn-outline-secondary">
-                                        <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="isEmergency" name="isEmergency">
+                                    <label class="form-check-label" for="isEmergency">
+                                        <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                                        <strong>Trường hợp khẩn cấp</strong>
+                                    </label>
+                                    <div class="form-text">Tick vào ô này nếu bệnh nhân cần máu gấp trong vòng 24h</div>
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a th:href="@{/blood-requests}" class="btn btn-outline-secondary me-md-2">
+                                        <i class="fas fa-arrow-left me-2"></i>Quay lại
                                     </a>
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-plus me-2"></i>Tạo đơn xin máu
+                                    </button>
                                 </div>
                             </form>
                         </div>
                     </div>
 
-                    <!-- Help Card -->
-                    <div class="card mt-4 border-warning">
-                        <div class="card-body">
-                            <h6 class="card-title text-warning">
-                                <i class="fas fa-question-circle me-2"></i>Cần hỗ trợ?
-                            </h6>
-                            <p class="card-text small mb-0">
-                                Sau khi tạo đơn, hệ thống sẽ tự động tìm kiếm và thông báo đến những người hiến máu phù hợp. 
-                                Bạn sẽ nhận được email cập nhật về tình trạng đơn xin máu.
-                            </p>
+                    <!-- Info Cards -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card border-info">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-info-circle text-info fa-2x mb-2"></i>
+                                    <h6 class="card-title">Thông tin quan trọng</h6>
+                                    <small class="text-muted">
+                                        Sau khi tạo đơn, hệ thống sẽ tự động tìm người hiến máu phù hợp và gửi email thông báo.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-warning">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-clock text-warning fa-2x mb-2"></i>
+                                    <h6 class="card-title">Thời gian xử lý</h6>
+                                    <small class="text-muted">
+                                        Đơn thường: 2-4h | Đơn khẩn cấp: 30 phút - 1h
+                                    </small>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -181,34 +164,73 @@
     <div th:replace="~{fragments/layout :: scripts}"></div>
     
     <script>
-        // Blood compatibility mapping
-        const bloodCompatibility = {
-            'A+': ['A+', 'A-', 'O+', 'O-'],
-            'A-': ['A-', 'O-'],
-            'B+': ['B+', 'B-', 'O+', 'O-'],
-            'B-': ['B-', 'O-'],
-            'AB+': ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
-            'AB-': ['A-', 'B-', 'AB-', 'O-'],
-            'O+': ['O+', 'O-'],
-            'O-': ['O-']
-        };
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('authToken');
+            const userRole = localStorage.getItem('userRole');
+            const authWarning = document.getElementById('authWarning');
+            const form = document.getElementById('bloodRequestForm');
 
-        // Update compatibility info when blood type changes
-        document.getElementById('bloodCode').addEventListener('change', function() {
-            const selectedBlood = this.value;
-            const compatibleDiv = document.getElementById('compatibleDonors');
-            
-            if (selectedBlood && bloodCompatibility[selectedBlood]) {
-                compatibleDiv.innerHTML = bloodCompatibility[selectedBlood].join(', ');
-                compatibleDiv.className = 'text-success';
+            // Debug logs
+            console.log('Debug - Token:', token ? 'có token' : 'không có token');
+            console.log('Debug - UserRole:', userRole);
+            console.log('Debug - Valid roles:', ['ADMIN', 'STAFF', 'MEMBER'].includes(userRole));
+
+            if (token && userRole && ['ADMIN', 'STAFF', 'MEMBER'].includes(userRole)) {
+                console.log('Debug - Hiển thị form');
+                form.style.display = 'block';
+                authWarning.style.display = 'none';
             } else {
-                compatibleDiv.innerHTML = 'Chọn nhóm máu để xem';
-                compatibleDiv.className = 'text-muted';
+                console.log('Debug - Hiển thị cảnh báo đăng nhập');
+                authWarning.style.display = 'block';
+                form.style.display = 'none';
             }
-        });
 
-        // Set minimum date to today
-        document.getElementById('requestDate').min = new Date().toISOString().split('T')[0];
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                if (!token) {
+                    alert('Vui lòng đăng nhập để thực hiện chức năng này.');
+                    window.location.href = '/auth/login';
+                    return;
+                }
+
+                const formData = new FormData(this);
+                const data = {
+                    patientName: formData.get('patientName'),
+                    requestDate: formData.get('requestDate'),
+                    bloodCode: formData.get('bloodType') + '_' + formData.get('rhFactor') + '_' + formData.get('componentType'),
+                    volume: parseInt(formData.get('volume')),
+                    address: formData.get('address') || '',
+                    isEmergency: formData.get('isEmergency') === 'on'
+                };
+                
+                try {
+                    const response = await fetch('/api/blood-requests/create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + token
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    if (response.ok) {
+                        alert('Tạo đơn xin máu thành công!');
+                        window.location.href = '/blood-requests/list'; // Chuyển hướng đến trang danh sách
+                    } else if (response.status === 403) {
+                        alert('Bạn không có quyền thực hiện hành động này. Vui lòng đăng nhập lại.');
+                        localStorage.clear();
+                        window.location.href = '/auth/login';
+                    }
+                    else {
+                        const error = await response.text();
+                        alert('Lỗi: ' + (error || 'Không thể tạo đơn xin máu.'));
+                    }
+                } catch (error) {
+                    alert('Có lỗi kết nối xảy ra: ' + error.message);
+                }
+            });
+        });
     </script>
 </body>
 </html>
