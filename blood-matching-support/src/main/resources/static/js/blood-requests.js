@@ -127,7 +127,7 @@ function displayBloodRequests(requests) {
                 <span class="badge bg-danger">${request.bloodType || 'N/A'}${request.rhFactor || ''}</span>
             </td>
             <td>
-                <span>${request.units || 0} đơn vị</span>
+                <span>${request.volume || 0} ml</span>
             </td>
             <td>
                 <span>${new Date(request.requestDate).toLocaleDateString('vi-VN')}</span>
@@ -210,12 +210,12 @@ function getActionButtons(request) {
             </button>
             <ul class="dropdown-menu">
                 <li>
-                    <a class="dropdown-item" href="#" onclick="updateStatus('${request.idBloodRequest}', 'CONFIRMED')">
+                    <a class="dropdown-item" href="#" onclick="updateStatus('${request.requestId}', 'CONFIRMED')">
                         <i class="fas fa-check me-2"></i>Xác nhận
                     </a>
                 </li>
                 <li>
-                    <a class="dropdown-item text-danger" href="#" onclick="updateStatus('${request.idBloodRequest}', 'CANCELLED')">
+                    <a class="dropdown-item text-danger" href="#" onclick="updateStatus('${request.requestId}', 'CANCELLED')">
                         <i class="fas fa-times me-2"></i>Hủy đơn
                     </a>
                 </li>
@@ -229,7 +229,7 @@ function getActionButtons(request) {
             </button>
             <ul class="dropdown-menu">
                 <li>
-                    <a class="dropdown-item" href="#" onclick="updateStatus('${request.idBloodRequest}', 'COMPLETED')">
+                    <a class="dropdown-item" href="#" onclick="updateStatus('${request.requestId}', 'COMPLETED')">
                         <i class="fas fa-check-circle me-2"></i>Hoàn thành
                     </a>
                 </li>
@@ -264,6 +264,9 @@ async function processRequest(requestId) {
 async function updateStatus(requestId, status) {
     try {
         const response = await fetch(`${API_BASE}/update-status/${requestId}/${status}`, {
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+            },
             method: 'PUT'
         });
         
