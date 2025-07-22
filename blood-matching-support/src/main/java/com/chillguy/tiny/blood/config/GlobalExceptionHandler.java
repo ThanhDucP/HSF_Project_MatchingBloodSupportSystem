@@ -8,6 +8,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.chillguy.tiny.blood.dto.response.ApiResponse;
+import com.chillguy.tiny.blood.exception.BadRequestException;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +38,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<String> handleAccessDenied(AccessDeniedException ex) {
         return new ResponseEntity<>("Bạn không có quyền truy cập", HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ApiResponse<String>> handleBadRequest(BadRequestException ex) {
+        return new ResponseEntity<>(ApiResponse.<String>builder().code(HttpStatus.BAD_REQUEST.value()).message(ex.getMessage()).build(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)

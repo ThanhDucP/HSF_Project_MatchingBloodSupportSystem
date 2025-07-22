@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -92,8 +91,13 @@ public class AuthService {
 
     public RegisterResponseDto register(RegisterRequestDto requestDto) {
 
+        if(accountRepository.existsByEmail(requestDto.getEmail())){
+            throw new BadRequestException("Email đã được sử dụng");
+        }
+
         Account newAccount = new Account();
         newAccount.setAccountId(generateAccountId());
+        newAccount.setEmail(requestDto.getEmail());
         newAccount.setUserName(requestDto.getUsername());
         newAccount.setPassword(passwordEncoder.encode(requestDto.getPassword()));
 

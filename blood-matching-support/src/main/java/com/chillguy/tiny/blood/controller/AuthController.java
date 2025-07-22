@@ -5,10 +5,10 @@ import com.chillguy.tiny.blood.dto.response.ApiResponse;
 import com.chillguy.tiny.blood.exception.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import com.chillguy.tiny.blood.service.AuthService;
@@ -63,10 +63,8 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<RegisterResponseDto>> register(@RequestBody @Valid RegisterRequestDto requestDto) {
-
-
-
+    public ResponseEntity<ApiResponse<RegisterResponseDto>> register(@RequestBody @Valid RegisterRequestDto requestDto, BindingResult bindingResult) {
+        
         RegisterResponseDto responseDto = authService.register(requestDto);
         return ResponseEntity.ok(ApiResponse.<RegisterResponseDto>builder()
                 .code(200)

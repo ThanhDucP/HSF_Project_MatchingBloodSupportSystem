@@ -1,13 +1,3 @@
-/*
- * File: Role.java
- * Author: SE184889 - Nguyễn Trần Việt An (AnNTV)
- * Created on: 02-06-2025
- * Purpose: Represents the Role entity used for user authentication and profile management
- *
- * Change Log:
- * [02-06-2025] - Created by: AnNTV
- */
-
 package com.chillguy.tiny.blood.entity;
 
 import jakarta.persistence.*;

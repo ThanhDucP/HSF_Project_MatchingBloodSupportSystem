@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head}">
-    <title>Đăng ký - Blood Matching Support</title>
 </head>
 
 <body class="d-flex flex-column min-vh-100 bg-light">
@@ -35,28 +34,23 @@
                             </div>
 
                             <!-- Register Form -->
-                            <form action="#" method="post" id="registerForm">
+                            <form id="registerForm">
                                 <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="username" class="form-label">
-                                                <i class="fas fa-user me-1"></i>Tên đăng nhập <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="text" class="form-control" 
-                                                   name="username" id="username" required 
-                                                   placeholder="Nhập tên đăng nhập">
-                                        </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="username" class="form-label">
+                                            <i class="fas fa-user me-1"></i>Tên người dùng <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" 
+                                                name="username" id="username" required 
+                                                placeholder="Nhập tên người dùng">
                                     </div>
-                                    
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="email" class="form-label">
-                                                <i class="fas fa-envelope me-1"></i>Email <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="email" class="form-control" 
-                                                   name="email" id="email" required 
-                                                   placeholder="Nhập địa chỉ email">
-                                        </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email" class="form-label">
+                                            <i class="fas fa-envelope me-1"></i>Email <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="email" class="form-control" 
+                                                name="email" id="email" required 
+                                                placeholder="Nhập địa chỉ email">
                                     </div>
                                 </div>
 
@@ -94,63 +88,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="fullName" class="form-label">
-                                        <i class="fas fa-id-card me-1"></i>Họ và tên <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" class="form-control" 
-                                           name="fullName" id="fullName" required 
-                                           placeholder="Nhập họ và tên đầy đủ">
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="bloodType" class="form-label">
-                                                <i class="fas fa-tint me-1"></i>Nhóm máu <span class="text-danger">*</span>
-                                            </label>
-                                            <select class="form-select" name="bloodType" id="bloodType" required>
-                                                <option value="">Chọn nhóm máu</option>
-                                                <option value="A+">A+</option>
-                                                <option value="A-">A-</option>
-                                                <option value="B+">B+</option>
-                                                <option value="B-">B-</option>
-                                                <option value="AB+">AB+</option>
-                                                <option value="AB-">AB-</option>
-                                                <option value="O+">O+</option>
-                                                <option value="O-">O-</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="phone" class="form-label">
-                                                <i class="fas fa-phone me-1"></i>Số điện thoại
-                                            </label>
-                                            <input type="tel" class="form-control" 
-                                                   name="phone" id="phone" 
-                                                   placeholder="Nhập số điện thoại">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="address" class="form-label">
-                                        <i class="fas fa-map-marker-alt me-1"></i>Địa chỉ
-                                    </label>
-                                    <textarea class="form-control" name="address" id="address" 
-                                              rows="2" placeholder="Nhập địa chỉ chi tiết"></textarea>
-                                </div>
-
-                                <div class="mb-3 form-check">
-                                    <input type="checkbox" class="form-check-input" id="agreeTerms" required>
-                                    <label class="form-check-label" for="agreeTerms">
-                                        Tôi đồng ý với <a href="#" class="text-danger">điều khoản sử dụng</a> 
-                                        và <a href="#" class="text-danger">chính sách bảo mật</a> <span class="text-danger">*</span>
-                                    </label>
                                 </div>
 
                                 <div class="d-grid">
@@ -199,5 +136,6 @@
             }
         }
     </script>
+    <script th:src="@{/js/register.js}"></script>
 </body>
 </html>
