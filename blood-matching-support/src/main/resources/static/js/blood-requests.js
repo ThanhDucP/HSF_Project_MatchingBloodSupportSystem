@@ -118,7 +118,7 @@ function displayBloodRequests(requests) {
     bloodRequestsTable.innerHTML = requests.map(request => `
         <tr>
             <td>
-                <code class="text-muted">${request.idBloodRequest.substring(0, 8)}</code>
+                <code class="text-muted">${request.requestId}</code>
             </td>
             <td>
                 <strong>${request.patientName || 'N/A'}</strong>

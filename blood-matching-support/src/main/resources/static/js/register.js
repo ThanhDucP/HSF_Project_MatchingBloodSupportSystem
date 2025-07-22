@@ -16,7 +16,7 @@ class RegisterForm {
         };
 
         if(formData.username === "" || formData.email === "" || formData.password === "" || formData.confirmPassword === "") {
-            alert("Vui lòng điền đầy đủ thông tin.");
+            showError("Vui lòng điền đầy đủ thông tin.");
             return;
         }
 

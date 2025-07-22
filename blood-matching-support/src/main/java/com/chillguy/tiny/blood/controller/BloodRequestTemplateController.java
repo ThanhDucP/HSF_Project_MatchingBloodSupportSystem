@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.chillguy.tiny.blood.dto.BloodRequestResponseDTO;
-import com.chillguy.tiny.blood.entity.BloodRequest;
 import com.chillguy.tiny.blood.service.BloodRequestService;
 
 import java.util.HashMap;
