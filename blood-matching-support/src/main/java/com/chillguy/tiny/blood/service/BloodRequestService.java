@@ -203,6 +203,8 @@ public class BloodRequestService {
                         .patientName(request.getPatientName())
                         .requestDate(request.getRequestDate())
                         .bloodCode(request.getBloodCode().getBloodCode())
+                        .bloodType(request.getBloodCode().getBloodType().name())
+                        .rhFactor(request.getBloodCode().getRh().name())
                         .isEmergency(request.isEmergency())
                         .volume(request.getVolume())
                         .status(request.getStatus().name())

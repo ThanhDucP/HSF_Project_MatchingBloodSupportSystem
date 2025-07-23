@@ -124,7 +124,7 @@ function displayBloodRequests(requests) {
                 <strong>${request.patientName || 'N/A'}</strong>
             </td>
             <td>
-                <span class="badge bg-danger">${request.bloodType || 'N/A'}${request.rhFactor || ''}</span>
+                <span class="badge bg-danger">${request.bloodType || 'N/A'}${getRhSymbol(request.rhFactor)}</span>
             </td>
             <td>
                 <span>${request.volume || 0} ml</span>
@@ -197,6 +197,12 @@ function getStatusText(status) {
         'COMPLETED': 'Hoàn thành'
     };
     return statusTexts[status] || status;
+}
+
+function getRhSymbol(rhFactor) {
+    if (rhFactor === 'POSITIVE') return '+';
+    if (rhFactor === 'NEGATIVE') return '-';
+    return '';
 }
 
 function getActionButtons(request) {

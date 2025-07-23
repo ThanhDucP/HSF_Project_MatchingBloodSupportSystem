@@ -9,7 +9,7 @@
     <nav th:replace="~{fragments/layout :: navbar}"></nav>
 
     <!-- Main Content -->
-    <main class="flex-grow-1 py-4">
+    <main class="flex-grow-1 py-4" id="mainContent">
         <div class="container">
             <!-- Header -->
             <div class="row mb-4">
@@ -162,6 +162,14 @@
         </div>
     </main>
 
+    <!-- Thông báo không có quyền -->
+    <div id="noPermissionMsg" style="display:none;" class="container py-5">
+        <div class="alert alert-danger text-center mt-5">
+            <i class="fas fa-exclamation-triangle fa-2x mb-3"></i><br/>
+            <strong>Bạn không có quyền xem danh sách này</strong>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer th:replace="~{fragments/layout :: footer}"></footer>
 
@@ -170,5 +178,14 @@
     
     <!-- Blood Requests JavaScript -->
     <script src="/js/blood-requests.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var userRole = localStorage.getItem('userRole');
+            if (userRole === 'MEMBER') {
+                document.getElementById('mainContent').style.display = 'none';
+                document.getElementById('noPermissionMsg').style.display = 'block';
+            }
+        });
+    </script>
 </body>
 </html>
