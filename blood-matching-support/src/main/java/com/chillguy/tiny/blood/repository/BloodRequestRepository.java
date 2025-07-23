@@ -11,4 +11,6 @@ public interface BloodRequestRepository extends JpaRepository<BloodRequest,Strin
         Optional<BloodRequest> findByIdBloodRequest(String idBloodRequest);
 
         boolean existsByAccount_AccountIdAndStatusIn(String accountAccountId, Collection<BloodRequest.Status> statuses);
+
+    Collection<BloodRequest> findByAccount_AccountId(String accountAccountId);
 }

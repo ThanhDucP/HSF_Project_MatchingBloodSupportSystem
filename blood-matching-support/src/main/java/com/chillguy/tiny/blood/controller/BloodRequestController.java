@@ -61,7 +61,16 @@ public class BloodRequestController {
         }
     }
 
-    @PostMapping("/process")
+    @GetMapping("/filter-by-emergency")
+    public ResponseEntity<?> filterByEmergency(@RequestParam boolean emergency) {
+        List<BloodRequestResponseDTO> filtered = service.getAllRequests().stream()
+                .filter(r -> r.isEmergency() == emergency)
+                .toList();
+        return ResponseEntity.ok(filtered);
+    }
+
+
+    @PostMapping("/process-blood")
     public ResponseEntity<?> processRequestWithInventoryCheck(@RequestParam String requestId) {
         try {
             service.processRequestWithInventoryCheck(requestId);
@@ -80,6 +89,12 @@ public class BloodRequestController {
                     "message", "Lỗi xử lý yêu cầu: " + e.getMessage()
             ));
         }
+    }
+
+    @GetMapping("/by-account")
+    public ResponseEntity<?> getByAccountId() {
+        String accountId = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(service.getByAccountId(accountId));
     }
 
     @PostMapping("/create")
@@ -118,7 +133,7 @@ public class BloodRequestController {
                 request.getConfirmationTokens().remove(token);
                 request.getTokenCreatedAt().remove(token);
                 requestRepo.save(request);
-                return ResponseEntity.badRequest().body("Token không hợp lệ hoặc đã hết hạn");
+                return ResponseEntity.badRequest().body("Bạn đã xác nhận hoặc đơn đã đóng!!");
             }
 
             if (request.getConfirmedAccountIds().contains(email)) {
