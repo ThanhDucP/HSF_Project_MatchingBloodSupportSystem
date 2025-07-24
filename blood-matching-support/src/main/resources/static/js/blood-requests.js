@@ -1,9 +1,36 @@
 // API endpoints
 const API_BASE = '/api/blood-requests';
 
+const bloodStatus = {
+    PENDING: 'PENDING',
+    CONFIRMED: 'CONFIRMED',
+    MATCHED: 'MATCHED',
+    CANCELLED: 'CANCELLED',
+    COMPLETED: 'COMPLETED'
+}
+
+const bloodTypes = {
+    A: 'A',
+    B: 'B',
+    AB: 'AB',
+    O: 'O'
+}
+
+const rhFactors = {
+    POSITIVE: '+',
+    NEGATIVE: '-',
+    POS:'+',
+    NEG:'-'
+}
+
 // DOM elements
 let bloodRequestsTable;
 let statsElements = {};
+let queryValues ={
+    status: '',
+    bloodType: '',
+    patientName: ''
+};
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
@@ -25,6 +52,16 @@ function initializeElements() {
 }
 
 function setupEventListeners() {
+    document.getElementById('statusFilter').addEventListener('input',(e)=>{
+        queryValues.status = e.target.value;
+    });
+    document.getElementById('bloodTypeFilter').addEventListener('input',(e)=>{
+        queryValues.bloodType = e.target.value;
+    });
+    document.getElementById('keywordFilter').addEventListener('input',(e)=>{
+        queryValues.patientName = e.target.value;
+    });
+
     // Filter form submission
     const filterForm = document.getElementById('filterForm');
     if (filterForm) {
@@ -61,12 +98,15 @@ async function loadBloodRequests() {
         }
         
         // Check role permission
-        if (!['ADMIN', 'STAFF'].includes(userRole)) {
+        if (!['STAFF'].includes(userRole)) {
             showError('Bạn không có quyền xem danh sách này');
             return;
         }
-        
-        const response = await fetch(API_BASE + '/getall', {
+
+        const bloodType = queryValues.bloodType? queryValues.bloodType.slice(0,queryValues.bloodType.length-1): '';
+        let bloodCodeRh = queryValues.bloodType? queryValues.bloodType[queryValues.bloodType.length-1]: '';
+        if(bloodCodeRh) bloodCodeRh = bloodCodeRh === '+' ? 'POSITIVE' : 'NEGATIVE';
+        const response = await fetch(`${API_BASE}/getall?${new URLSearchParams({...queryValues, bloodType, bloodCodeRh})}`, {
             headers: {
                 'Authorization': 'Bearer ' + token
             }
@@ -124,7 +164,7 @@ function displayBloodRequests(requests) {
                 <strong>${request.patientName || 'N/A'}</strong>
             </td>
             <td>
-                <span class="badge bg-danger">${request.bloodType || 'N/A'}${request.rhFactor || ''}</span>
+                <span class="badge bg-danger">${request.bloodCode.split("_")[0] || 'N/A'}${rhFactors[request.bloodCode.split("_")[1]] || ''}</span>
             </td>
             <td>
                 <span>${request.volume || 0} ml</span>
@@ -146,9 +186,6 @@ function displayBloodRequests(requests) {
             </td>
             <td class="text-center">
                 <div class="btn-group" role="group">
-                    <button class="btn btn-sm btn-outline-primary" onclick="viewDetails('${request.idBloodRequest}')" title="Xem chi tiết">
-                        <i class="fas fa-eye"></i>
-                    </button>
                     ${getActionButtons(request)}
                 </div>
             </td>
@@ -204,36 +241,21 @@ function getActionButtons(request) {
     
     if (request.status === 'PENDING' || request.status === 'MATCHED') {
         buttons += `
-            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" 
-                    data-bs-toggle="dropdown" title="Thao tác khác">
-                <i class="fas fa-ellipsis-v"></i>
+            <button type="button" class="btn btn-sm btn-outline-success" 
+                    title="Xác nhận" onclick="updateStatus('${request.requestId}', 'CONFIRMED')">
+                <i class="fas fa-check me-2"></i>Xác nhận
             </button>
-            <ul class="dropdown-menu">
-                <li>
-                    <a class="dropdown-item" href="#" onclick="updateStatus('${request.requestId}', 'CONFIRMED')">
-                        <i class="fas fa-check me-2"></i>Xác nhận
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item text-danger" href="#" onclick="updateStatus('${request.requestId}', 'CANCELLED')">
-                        <i class="fas fa-times me-2"></i>Hủy đơn
-                    </a>
-                </li>
-            </ul>
+            <button type="button" class="btn btn-sm btn-outline-danger" 
+                    title="Hủy đơn" onclick="updateStatus('${request.requestId}', 'CANCELLED')">
+                <i class="fas fa-times me-2"></i>Hủy đơn
+            </button>
         `;
     } else if (request.status === 'CONFIRMED') {
         buttons += `
-            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" 
-                    data-bs-toggle="dropdown" title="Thao tác khác">
-                <i class="fas fa-ellipsis-v"></i>
+            <button type="button" class="btn btn-sm btn-outline-success" 
+                    title="Hoàn thành" onclick="updateStatus('${request.requestId}', 'COMPLETED')">
+                <i class="fas fa-check-circle me-2"></i>Hoàn thành
             </button>
-            <ul class="dropdown-menu">
-                <li>
-                    <a class="dropdown-item" href="#" onclick="updateStatus('${request.requestId}', 'COMPLETED')">
-                        <i class="fas fa-check-circle me-2"></i>Hoàn thành
-                    </a>
-                </li>
-            </ul>
         `;
     }
     
@@ -280,11 +302,6 @@ async function updateStatus(requestId, status) {
     } catch (error) {
         showError('Không thể cập nhật trạng thái: ' + error.message);
     }
-}
-
-function viewDetails(requestId) {
-    // Implement view details functionality
-    console.log('View details for request:', requestId);
 }
 
 function showLoading(show) {

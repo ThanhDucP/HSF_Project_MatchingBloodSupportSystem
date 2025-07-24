@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.chillguy.tiny.blood.dto.BloodRequestDTO;
 import com.chillguy.tiny.blood.dto.BloodRequestResponseDTO;
+import com.chillguy.tiny.blood.entity.Blood;
 import com.chillguy.tiny.blood.entity.BloodRequest;
 import com.chillguy.tiny.blood.repository.BloodRequestRepository;
 import com.chillguy.tiny.blood.service.BloodRequestService;
@@ -39,9 +40,16 @@ public class BloodRequestController {
     }
 
     @GetMapping("/getall")
-    public ResponseEntity<?> getAllBloodRequests() {
+    public ResponseEntity<?> getAllBloodRequests(
+        @RequestParam(required = false, defaultValue = "") String patientName,
+        @RequestParam(required = false, defaultValue = "PENDING,CONFIRMED,MATCHED,CANCELLED,COMPLETED") List<BloodRequest.Status> status,
+        @RequestParam(required = false, defaultValue = "A,B,AB,O") List<Blood.BloodType> bloodType,
+        @RequestParam(required = false, defaultValue = "POSITIVE,NEGATIVE") List<Blood.RhFactor> bloodCodeRh
+    ) {
         try {
-            List<BloodRequestResponseDTO> requests = service.getAllRequests();
+            List<BloodRequestResponseDTO> requests = service.getAllRequests(
+                    patientName, status, bloodType, bloodCodeRh
+            );
             return ResponseEntity.ok(requests);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Lỗi khi lấy danh sách yêu cầu máu: " + e.getMessage());

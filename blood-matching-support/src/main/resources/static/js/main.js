@@ -18,7 +18,13 @@ function checkAuthStatus() {
     
     if (token) {
         // User is logged in
-        authLinks.forEach(link => link.style.display = 'block');
+        //The data-auth-reuired attribute need to be empty to show the element or if it is not then the role of the user must match
+        const userRole = localStorage.getItem('userRole') || '';
+        authLinks.forEach(link => {
+            if (!link.attributes["data-auth-required"].value || link.attributes["data-auth-required"].value === userRole) {
+                link.style.display = 'block';
+            }
+        });
         guestLinks.forEach(link => link.style.display = 'none');
     } else {
         // User is not logged in
@@ -39,6 +45,10 @@ function makeAuthenticatedRequest(url, options = {}) {
     }
     
     return fetch(url, options);
+}
+
+function initializeLogout(){
+    
 }
 
 // Logout function

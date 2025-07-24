@@ -216,7 +216,7 @@
                     
                     if (response.ok) {
                         alert('Tạo đơn xin máu thành công!');
-                        window.location.href = '/blood-requests/list'; // Chuyển hướng đến trang danh sách
+                        window.location.href = '/blood-requests'; // Chuyển hướng đến trang danh sách
                     } else if (response.status === 403) {
                         alert('Bạn không có quyền thực hiện hành động này. Vui lòng đăng nhập lại.');
                         localStorage.clear();

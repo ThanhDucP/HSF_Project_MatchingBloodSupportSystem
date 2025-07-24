@@ -195,9 +195,16 @@ public class BloodRequestService {
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
-    public List<BloodRequestResponseDTO> getAllRequests() {
-        return requestRepo.findAll().stream()
-                .sorted(Comparator.comparing(BloodRequest::getRequestCreationDate).reversed()) // Mới nhất lên đầu
+    public List<BloodRequestResponseDTO> getAllRequests(
+        String patientName,
+        List<BloodRequest.Status> statuses,
+        List<Blood.BloodType> bloodType,
+        List<Blood.RhFactor> bloodCodeRh
+    ) {
+        return requestRepo.findByPatientNameContainingIgnoreCaseAndStatusInAndBloodCodeBloodTypeInAndBloodCodeRhIn(
+                patientName, statuses, bloodType, bloodCodeRh
+        ).stream()
+                .sorted(Comparator.comparing(BloodRequest::getRequestCreationDate).reversed())
                 .map(request -> BloodRequestResponseDTO.builder()
                         .requestId(request.getIdBloodRequest())
                         .patientName(request.getPatientName())
