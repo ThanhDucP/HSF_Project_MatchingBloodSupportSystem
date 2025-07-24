@@ -201,6 +201,32 @@ public class BloodRequestService {
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
+    public List<BloodRequestResponseDTO> getAllRequestsByAccountId(
+        String patientName,
+        List<BloodRequest.Status> statuses,
+        List<Blood.BloodType> bloodType,
+        List<Blood.RhFactor> bloodCodeRh,
+        String accountId
+    ){
+        return requestRepo.findByPatientNameContainingIgnoreCaseAndStatusInAndBloodCodeBloodTypeInAndBloodCodeRhInAndAccountId(
+                patientName, statuses, bloodType, bloodCodeRh, accountId
+        ).stream()
+                .sorted(Comparator.comparing(BloodRequest::getRequestCreationDate).reversed())
+                .map(request -> BloodRequestResponseDTO.builder()
+                        .requestId(request.getIdBloodRequest())
+                        .patientName(request.getPatientName())
+                        .requestDate(request.getRequestDate())
+                        .bloodCode(request.getBloodCode().getBloodCode())
+                        .bloodType(request.getBloodCode().getBloodType().name())
+                        .rhFactor(request.getBloodCode().getRh().name())
+                        .isEmergency(request.isEmergency())
+                        .volume(request.getVolume())
+                        .status(request.getStatus().name())
+                        .confirmedCount(request.getConfirmedCount())
+                        .build())
+                .toList();
+    }
+
     public List<BloodRequestResponseDTO> getAllRequests(
         String patientName,
         List<BloodRequest.Status> statuses,

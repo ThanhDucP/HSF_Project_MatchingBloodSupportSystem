@@ -56,6 +56,24 @@ public class BloodRequestController {
         }
     }
 
+    @GetMapping("/get/{userId}")
+    public ResponseEntity<?> getByUserId(
+        @RequestParam(required = false, defaultValue = "") String patientName,
+        @RequestParam(required = false, defaultValue = "PENDING,CONFIRMED,MATCHED,CANCELLED,COMPLETED") List<BloodRequest.Status> status,
+        @RequestParam(required = false, defaultValue = "A,B,AB,O") List<Blood.BloodType> bloodType,
+        @RequestParam(required = false, defaultValue = "POSITIVE,NEGATIVE") List<Blood.RhFactor> bloodCodeRh,    
+        @PathVariable String userId
+    ) {
+        try {
+            List<BloodRequestResponseDTO> requests = service.getAllRequestsByAccountId(
+                    patientName, status, bloodType, bloodCodeRh, userId
+            );
+            return ResponseEntity.ok(requests);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Lỗi khi lấy danh sách yêu cầu máu: " + e.getMessage());
+        }
+    }
+
     @PutMapping("/update-status/{requestId}/{status}")
     public ResponseEntity<String> updateStatus(
             @PathVariable String requestId,

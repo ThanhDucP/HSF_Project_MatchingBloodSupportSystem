@@ -10,11 +10,13 @@ import java.util.Optional;
 
 public interface BloodRequestRepository extends JpaRepository<BloodRequest,String> {
 
-        Optional<BloodRequest> findByIdBloodRequest(String idBloodRequest);
+    Optional<BloodRequest> findByIdBloodRequest(String idBloodRequest);
 
-        List<BloodRequest> findByPatientNameContainingIgnoreCaseAndStatusInAndBloodCodeBloodTypeInAndBloodCodeRhIn(String patientName, List<BloodRequest.Status> statuses, List<Blood.BloodType> bloodType, List<Blood.RhFactor> bloodCodeRh);
+    List<BloodRequest> findByPatientNameContainingIgnoreCaseAndStatusInAndBloodCodeBloodTypeInAndBloodCodeRhIn(String patientName, List<BloodRequest.Status> statuses, List<Blood.BloodType> bloodType, List<Blood.RhFactor> bloodCodeRh);
 
-        boolean existsByAccount_AccountIdAndStatusIn(String accountAccountId, Collection<BloodRequest.Status> statuses);
+    List<BloodRequest> findByPatientNameContainingIgnoreCaseAndStatusInAndBloodCodeBloodTypeInAndBloodCodeRhInAndAccountId(String patientName, List<BloodRequest.Status> statuses, List<Blood.BloodType> bloodType, List<Blood.RhFactor> bloodCodeRh, String accountId);
+
+    boolean existsByAccount_AccountIdAndStatusIn(String accountAccountId, Collection<BloodRequest.Status> statuses);
 
     Collection<BloodRequest> findByAccount_AccountId(String accountAccountId);
 }
