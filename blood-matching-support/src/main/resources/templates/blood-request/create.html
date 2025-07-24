@@ -170,11 +170,6 @@
             const authWarning = document.getElementById('authWarning');
             const form = document.getElementById('bloodRequestForm');
 
-            // Debug logs
-            console.log('Debug - Token:', token ? 'có token' : 'không có token');
-            console.log('Debug - UserRole:', userRole);
-            console.log('Debug - Valid roles:', ['ADMIN', 'STAFF', 'MEMBER'].includes(userRole));
-
             if (token && userRole && ['ADMIN', 'STAFF', 'MEMBER'].includes(userRole)) {
                 console.log('Debug - Hiển thị form');
                 form.style.display = 'block';

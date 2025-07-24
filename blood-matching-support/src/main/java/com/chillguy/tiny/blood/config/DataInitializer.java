@@ -41,7 +41,7 @@ public class DataInitializer {
         createRoleIfNotExist(ROLE_MEMBER, "Người dùng thường");
 
         createAccountIfNotExist("admin", "admin@system.local", ROLE_ADMIN);
-        createAccountIfNotExist("staff", "staff@hospital.local", ROLE_STAFF);
+        createAccountIfNotExist("staff", "duc49531@gmail.com", ROLE_STAFF);
         createAccountIfNotExist("member", "member@user.local", ROLE_MEMBER);
     }
 
@@ -136,13 +136,14 @@ public class DataInitializer {
             for (Blood.RhFactor rh : Blood.RhFactor.values()) {
                 for (Blood.ComponentType component : Blood.ComponentType.values()) {
                     Blood blood = Blood.builder()
-                            .bloodCode(generateBloodCode(type, rh, component))
+                            .bloodCode(generateBloodCode(type, rh)) // ✅ dùng lại hàm mới
                             .bloodType(type)
                             .rh(rh)
                             .componentType(component)
                             .isRareBlood(isRare(type, rh))
                             .quantity(0)
                             .build();
+
 
                     bloodRepository.save(blood);
                 }
@@ -158,9 +159,10 @@ public class DataInitializer {
         return List.of("AB-", "B-", "A-", "O-").contains(code);
     }
 
-    private String generateBloodCode(Blood.BloodType type, Blood.RhFactor rh, Blood.ComponentType comp) {
-        return type.name() + "_" + (rh == Blood.RhFactor.POSITIVE ? "POS" : "NEG") + "_" + comp.name();
+    private String generateBloodCode(Blood.BloodType type, Blood.RhFactor rh) {
+        return type.name() + (rh == Blood.RhFactor.POSITIVE ? "+" : "-");
     }
+
 
     private String generateAccountId() {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));

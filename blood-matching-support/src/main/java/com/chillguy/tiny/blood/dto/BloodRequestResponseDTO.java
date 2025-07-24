@@ -1,10 +1,10 @@
 package com.chillguy.tiny.blood.dto;
 
+import java.time.LocalDate;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-
-import java.time.LocalDate;
 
 @Data
 @Builder
@@ -18,4 +18,6 @@ public class BloodRequestResponseDTO {
     private int volume;
     private String status;
     private int confirmedCount;
+    private String bloodType;
+    private String rhFactor;
 }

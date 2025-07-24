@@ -37,6 +37,8 @@ public class BloodRequestService {
         System.out.println("DEBUG - Tìm accountId: " + accountId);
         Account acc = accountRepo.findByAccountId(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản với accountId: " + accountId));
+        profileRepo.findProfileByAccount(acc)
+                .orElseThrow(() -> new IllegalArgumentException("Bạn chưa có thông tin cá nhân, vui lòng tạo!!"));
         
         System.out.println("DEBUG - Tìm bloodCode: " + dto.getBloodCode());
         
@@ -56,7 +58,7 @@ public class BloodRequestService {
         }
 
         boolean hasUnfinished = requestRepo.existsByAccount_AccountIdAndStatusIn(
-                accountId, List.of(BloodRequest.Status.PENDING, BloodRequest.Status.MATCHED, BloodRequest.Status.CONFIRMED));
+                accountId, List.of(BloodRequest.Status.PENDING));
         if (hasUnfinished) throw new IllegalStateException("Bạn đã có đơn xin máu chưa hoàn thành.");
 
         BloodRequest request = BloodRequest.builder()
@@ -160,18 +162,22 @@ public class BloodRequestService {
         String recipientCode = request.getBloodCode().getBloodCodeString();
 
         List<Profile> eligible = profileRepo.findAll().stream()
-                .filter(this::isEligibleToDonate)
+                .filter(p -> isEligibleToDonate(p, request.getRequestDate()))
+                .filter(p -> !p.getAccount().getAccountId().equals(request.getAccount().getAccountId()))
                 .filter(p -> BloodCompatibility.canDonateTo(
                         p.getBloodCode().getBloodCodeString(), recipientCode))
+                .filter(p -> p.getBloodCode().getComponentType() == request.getBloodCode().getComponentType())
                 .sorted(Comparator.comparing(p -> distance(request, p)))
                 .toList();
 
         return eligible.subList(Math.min(start, eligible.size()), Math.min(end, eligible.size()));
     }
 
-    private boolean isEligibleToDonate(Profile p) {
-        return p.getRestDate() == null || p.getRestDate().isBefore(LocalDate.now());
+
+    private boolean isEligibleToDonate(Profile p, LocalDate restDate) {
+        return p.getRestDate() == null || !p.getRestDate().isAfter(restDate);
     }
+
 
     private boolean isValidEmail(String email) {
         return email != null && email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$");
@@ -210,6 +216,8 @@ public class BloodRequestService {
                         .patientName(request.getPatientName())
                         .requestDate(request.getRequestDate())
                         .bloodCode(request.getBloodCode().getBloodCode())
+                        .bloodType(request.getBloodCode().getBloodType().name())
+                        .rhFactor(request.getBloodCode().getRh().name())
                         .isEmergency(request.isEmergency())
                         .volume(request.getVolume())
                         .status(request.getStatus().name())
@@ -233,6 +241,49 @@ public class BloodRequestService {
         }
 
         requestRepo.save(request);
+    }
+    @Scheduled(cron = "0 0 0 * * *")
+    public void autoCancelExpiredRequests() {
+        List<BloodRequest> expired = requestRepo.findAll().stream()
+                .filter(r -> !r.isClosed())
+                .filter(r -> ChronoUnit.DAYS.between(r.getRequestCreationDate(), LocalDate.now()) > 7)
+                .toList();
+
+        for (BloodRequest r : expired) {
+            r.setStatus(BloodRequest.Status.CANCELLED);
+            r.setClosed(true);
+            requestRepo.save(r);
+
+            emailNotifier.send(
+                    r.getAccount().getEmail(),
+                    "[HUỶ] Đơn máu đã quá hạn",
+                    "Đơn yêu cầu máu cho bệnh nhân " + r.getPatientName() +
+                            " đã bị huỷ do quá 7 ngày mà chưa hoàn thành."
+            );
+        }
+    }
+
+    public List<BloodRequestResponseDTO> getByAccountId(String accountId) {
+        return requestRepo.findByAccount_AccountId(accountId).stream()
+                .sorted(Comparator.comparing(BloodRequest::getRequestCreationDate).reversed())
+                .map(this::toDTO)
+                .toList();
+    }
+
+
+    private BloodRequestResponseDTO toDTO(BloodRequest request) {
+        return BloodRequestResponseDTO.builder()
+                .requestId(request.getIdBloodRequest())
+                .patientName(request.getPatientName())
+                .requestDate(request.getRequestDate())
+                .bloodCode(request.getBloodCode().getBloodCode())
+                .bloodType(request.getBloodCode().getBloodType().name())
+                .rhFactor(request.getBloodCode().getRh().name())
+                .isEmergency(request.isEmergency())
+                .volume(request.getVolume())
+                .status(request.getStatus().name())
+                .confirmedCount(request.getConfirmedCount())
+                .build();
     }
 
 
