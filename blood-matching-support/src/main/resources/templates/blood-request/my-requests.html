@@ -15,9 +15,14 @@
             <div class="row mb-4">
                 <div class="col-md-8">
                     <h2 class="fw-bold text-danger">
-                        <i class="fas fa-list me-2"></i>Danh sách đơn xin máu
+                        <i class="fas fa-list me-2"></i>Danh sách đơn xin máu của bạn
                     </h2>
                     <p class="text-muted mb-0">Theo dõi và quản lý các đơn xin máu</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <a th:href="@{/blood-requests/create}" class="btn btn-danger" sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_MEMBER')">
+                        <i class="fas fa-plus me-2"></i>Tạo đơn mới
+                    </a>
                 </div>
             </div>
 
@@ -26,7 +31,7 @@
                 <div class="card-body">
                     <form id="filterForm">
                         <div class="row g-3 align-items-end">
-                            <div class="col-md-3">
+                            <div class="col-md-5">
                                 <label for="statusFilter" class="form-label">Trạng thái</label>
                                 <select class="form-select" id="statusFilter" name="status">
                                     <option value="">Tất cả trạng thái</option>
@@ -37,7 +42,7 @@
                                     <option value="CANCELLED">Đã hủy</option>
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-5">
                                 <label for="bloodTypeFilter" class="form-label">Nhóm máu</label>
                                 <select class="form-select" id="bloodTypeFilter" name="bloodType">
                                     <option value="">Tất cả nhóm máu</option>
@@ -50,11 +55,6 @@
                                     <option value="O+">O+</option>
                                     <option value="O-">O-</option>
                                 </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="keywordFilter" class="form-label">Tìm kiếm</label>
-                                <input type="text" class="form-control" id="keywordFilter" name="keyword" 
-                                       placeholder="Tên bệnh nhân...">
                             </div>
                             <div class="col-md-2">
                                 <button type="submit" class="btn btn-primary w-100">
@@ -130,7 +130,6 @@
                                     <th>Trạng thái</th>
                                     <th>Xác nhận</th>
                                     <th>Khẩn cấp</th>
-                                    <th class="text-center">Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody id="bloodRequestsTableBody">
@@ -174,12 +173,7 @@
     <!-- Blood Requests JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            window.canAct=true;
-            var userRole = localStorage.getItem('userRole');
-            if (userRole === 'MEMBER') {
-                document.getElementById('mainContent').style.display = 'none';
-                document.getElementById('noPermissionMsg').style.display = 'block';
-            }
+            window.canAct=false
         });
     </script>
     <script src="/js/blood-requests.js"></script>

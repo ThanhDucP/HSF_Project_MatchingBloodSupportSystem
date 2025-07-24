@@ -14,7 +14,7 @@ public interface BloodRequestRepository extends JpaRepository<BloodRequest,Strin
 
     List<BloodRequest> findByPatientNameContainingIgnoreCaseAndStatusInAndBloodCodeBloodTypeInAndBloodCodeRhIn(String patientName, List<BloodRequest.Status> statuses, List<Blood.BloodType> bloodType, List<Blood.RhFactor> bloodCodeRh);
 
-    List<BloodRequest> findByPatientNameContainingIgnoreCaseAndStatusInAndBloodCodeBloodTypeInAndBloodCodeRhInAndAccountId(String patientName, List<BloodRequest.Status> statuses, List<Blood.BloodType> bloodType, List<Blood.RhFactor> bloodCodeRh, String accountId);
+    List<BloodRequest> findByPatientNameContainingIgnoreCaseAndStatusInAndBloodCodeBloodTypeInAndBloodCodeRhInAndAccountAccountId(String patientName, List<BloodRequest.Status> statuses, List<Blood.BloodType> bloodType, List<Blood.RhFactor> bloodCodeRh, String accountId);
 
     boolean existsByAccount_AccountIdAndStatusIn(String accountAccountId, Collection<BloodRequest.Status> statuses);
 

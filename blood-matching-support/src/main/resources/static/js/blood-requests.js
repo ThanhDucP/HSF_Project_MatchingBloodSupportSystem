@@ -96,9 +96,9 @@ async function loadBloodRequests() {
             setTimeout(() => window.location.href = '/auth/login', 2000);
             return;
         }
-        
+
         // Check role permission
-        if (!['STAFF'].includes(userRole)) {
+        if (!['STAFF'].includes(userRole)&& window?.canAct) {
             showError('Bạn không có quyền xem danh sách này');
             return;
         }
@@ -106,7 +106,7 @@ async function loadBloodRequests() {
         const bloodType = queryValues.bloodType? queryValues.bloodType.slice(0,queryValues.bloodType.length-1): '';
         let bloodCodeRh = queryValues.bloodType? queryValues.bloodType[queryValues.bloodType.length-1]: '';
         if(bloodCodeRh) bloodCodeRh = bloodCodeRh === '+' ? 'POSITIVE' : 'NEGATIVE';
-        const response = await fetch(`${API_BASE}/getall?${new URLSearchParams({...queryValues, bloodType, bloodCodeRh})}`, {
+        const response = await fetch(`${API_BASE}/${window?.canAct ? 'getall' : 'my-requests'}?${new URLSearchParams({...queryValues, bloodType, bloodCodeRh})}`, {
             headers: {
                 'Authorization': 'Bearer ' + token
             }
@@ -184,11 +184,13 @@ function displayBloodRequests(requests) {
             <td class="text-center">
                 ${request.emergency ? '<i class="fas fa-exclamation-triangle text-warning" title="Khẩn cấp"></i>' : '<i class="fas fa-minus text-muted"></i>'}
             </td>
+            ${window?.canAct ? `
             <td class="text-center">
                 <div class="btn-group" role="group">
                     ${getActionButtons(request)}
                 </div>
             </td>
+            `: ''}
         </tr>
     `).join('');
 }

@@ -208,7 +208,7 @@ public class BloodRequestService {
         List<Blood.RhFactor> bloodCodeRh,
         String accountId
     ){
-        return requestRepo.findByPatientNameContainingIgnoreCaseAndStatusInAndBloodCodeBloodTypeInAndBloodCodeRhInAndAccountId(
+        return requestRepo.findByPatientNameContainingIgnoreCaseAndStatusInAndBloodCodeBloodTypeInAndBloodCodeRhInAndAccountAccountId(
                 patientName, statuses, bloodType, bloodCodeRh, accountId
         ).stream()
                 .sorted(Comparator.comparing(BloodRequest::getRequestCreationDate).reversed())

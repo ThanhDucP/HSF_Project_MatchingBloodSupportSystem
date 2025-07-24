@@ -66,6 +66,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/blood-requests/update-status/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF")
                         .requestMatchers(HttpMethod.POST, "/api/blood-requests/process").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF")
                         .requestMatchers(HttpMethod.POST, "/api/blood-requests/create").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF", "ROLE_MEMBER")
+                        .requestMatchers(HttpMethod.GET, "/api/blood-requests/my-requests").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF", "ROLE_MEMBER")
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/auth/reset-password").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/profile/**").authenticated()

@@ -56,17 +56,17 @@ public class BloodRequestController {
         }
     }
 
-    @GetMapping("/get/{userId}")
+    @GetMapping("/my-requests")
     public ResponseEntity<?> getByUserId(
         @RequestParam(required = false, defaultValue = "") String patientName,
         @RequestParam(required = false, defaultValue = "PENDING,CONFIRMED,MATCHED,CANCELLED,COMPLETED") List<BloodRequest.Status> status,
         @RequestParam(required = false, defaultValue = "A,B,AB,O") List<Blood.BloodType> bloodType,
-        @RequestParam(required = false, defaultValue = "POSITIVE,NEGATIVE") List<Blood.RhFactor> bloodCodeRh,    
-        @PathVariable String userId
+        @RequestParam(required = false, defaultValue = "POSITIVE,NEGATIVE") List<Blood.RhFactor> bloodCodeRh
     ) {
         try {
+            String accountId = SecurityContextHolder.getContext().getAuthentication().getName();
             List<BloodRequestResponseDTO> requests = service.getAllRequestsByAccountId(
-                    patientName, status, bloodType, bloodCodeRh, userId
+                    patientName, status, bloodType, bloodCodeRh, accountId
             );
             return ResponseEntity.ok(requests);
         } catch (Exception e) {
