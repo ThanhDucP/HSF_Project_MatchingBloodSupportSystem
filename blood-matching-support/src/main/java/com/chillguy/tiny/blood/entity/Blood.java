@@ -36,7 +36,7 @@ public class Blood {
 
     public enum BloodType { A, B, AB, O }
     public enum RhFactor { POSITIVE, NEGATIVE }
-    public enum ComponentType { RED_BLOOD_CELL, PLASMA, PLATELET }
+    public enum ComponentType { RED_BLOOD_CELL, PLASMA, PLATELET ,WHOLE_BLOOD}
 
     public String getBloodCodeString() {
         return this.bloodType.name() + (this.rh == RhFactor.POSITIVE ? "+" : "-");
