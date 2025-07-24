@@ -148,7 +148,7 @@ public class BloodRequestService {
             String token = UUID.randomUUID().toString();
             request.addConfirmationToken(token, email);
 
-            String link = "http://localhost:8080/api/blood-requests/confirm-by-token?requestId="
+            String link = "http://localhost:8080/blood-requests/confirm-by-token?requestId="
                     + request.getIdBloodRequest() + "&token=" + token;
 
             String body = "<p>🩸 " + message + " <strong>" + request.getPatientName() + "</strong>.</p>"

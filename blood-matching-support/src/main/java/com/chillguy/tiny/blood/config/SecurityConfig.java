@@ -57,7 +57,7 @@ public class SecurityConfig {
                         // Public API endpoints
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
-                        .requestMatchers("/api/blood-requests/confirm-by-token").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF", "ROLE_MEMBER")
+                        .requestMatchers(HttpMethod.PUT,"/api/blood-requests/confirm-by-token").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF", "ROLE_MEMBER")
                         
                         // Template pages - allow access, JavaScript will handle auth check
                         .requestMatchers("/blood-requests/**").permitAll()
@@ -65,7 +65,7 @@ public class SecurityConfig {
                         // Protected API endpoints - require JWT authentication  
                         .requestMatchers(HttpMethod.GET, "/api/blood-requests/getall").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF")
                         .requestMatchers(HttpMethod.PUT, "/api/blood-requests/update-status/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF")
-                        .requestMatchers(HttpMethod.POST, "/api/blood-requests/process").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF")
+                        .requestMatchers(HttpMethod.PUT, "/api/blood-requests/process-blood").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF")
                         .requestMatchers(HttpMethod.POST, "/api/blood-requests/create").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF", "ROLE_MEMBER")
                         .requestMatchers(HttpMethod.GET, "/api/blood-requests/my-requests").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF", "ROLE_MEMBER")
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")

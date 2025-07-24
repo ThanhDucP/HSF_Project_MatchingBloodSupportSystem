@@ -8,7 +8,6 @@ public class BloodMapper {
         BloodDto bloodDto = new BloodDto();
         bloodDto.setBloodType(bloodCode.getBloodCode());
         bloodDto.setRhFactor(bloodCode.getRh().name());
-        bloodDto.setComponentType(bloodCode.getComponentType().name());
         return bloodDto;
     }
 
@@ -16,7 +15,6 @@ public class BloodMapper {
         Blood blood = new Blood();
         blood.setBloodType(Blood.BloodType.valueOf(bloodDto.getBloodType()));
         blood.setRh(Blood.RhFactor.valueOf(bloodDto.getRhFactor()));
-        blood.setComponentType(Blood.ComponentType.valueOf(bloodDto.getComponentType()));
         return blood;
     }
 }

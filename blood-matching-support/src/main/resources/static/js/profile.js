@@ -7,7 +7,6 @@ class ProfileForm{
         this.genderInput = this.form.querySelector('#gender');
         this.bloodTypeInput = this.form.querySelector('#bloodType');
         this.rhFactorInput = this.form.querySelector('#rhFactor');
-        this.componentTypeInput = this.form.querySelector('#componentType');
         this.cityInput = this.form.querySelector('#city');
         this.districtInput = this.form.querySelector('#district');
         this.wardInput = this.form.querySelector('#ward');
@@ -30,7 +29,6 @@ class ProfileForm{
             this.genderInput.value = profile.gender;
             this.bloodTypeInput.value = profile.blood.bloodType.split("_")[0];
             this.rhFactorInput.value = profile.blood.rhFactor;
-            this.componentTypeInput.value = profile.blood.componentType;
             this.cityInput.value = profile.address.city;
             this.districtInput.value = profile.address.district;
             this.wardInput.value = profile.address.ward;
@@ -49,7 +47,6 @@ class ProfileForm{
             blood:{
                 bloodType: this.bloodTypeInput.value,
                 rhFactor: this.rhFactorInput.value,
-                componentType: this.componentTypeInput.value
             },
             address:{
             city: this.cityInput.value,

@@ -186,7 +186,7 @@ function displayBloodRequests(requests) {
             </td>
             ${window?.canAct ? `
             <td class="text-center">
-                <div class="btn-group" role="group">
+                <div class="btn-group" role="group" id="actionButtons-${request.requestId}">
                     ${getActionButtons(request)}
                 </div>
             </td>
@@ -241,7 +241,18 @@ function getStatusText(status) {
 function getActionButtons(request) {
     let buttons = '';
     
-    if (request.status === 'PENDING' || request.status === 'MATCHED') {
+    if (request.status === 'PENDING') {
+        buttons += `
+            <button type="button" class="btn btn-sm btn-outline-success" 
+                    title="Xác nhận" onclick="processRequest('${request.requestId}')">
+                <i class="fas fa-check me-2"></i>Xác nhận
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger" 
+                    title="Hủy đơn" onclick="updateStatus('${request.requestId}', 'CANCELLED')">
+                <i class="fas fa-times me-2"></i>Hủy đơn
+            </button>
+        `;
+    } else if(request.status==='MATCHED'){
         buttons += `
             <button type="button" class="btn btn-sm btn-outline-success" 
                     title="Xác nhận" onclick="updateStatus('${request.requestId}', 'CONFIRMED')">
@@ -264,8 +275,34 @@ function getActionButtons(request) {
     return buttons;
 }
 
+async function processRequest(requestId) {
+    try {
+        showLoadingActionButton(requestId);
+        const response = await fetch(`${API_BASE}/process-blood/${requestId}`, {
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+            },
+            method: 'PUT'
+        });
+        
+        if (response.ok) {
+            showSuccess('Yêu cầu đã được xử lý');
+            loadBloodRequests(); // Reload data
+        } else {
+            const error = await response.text();
+            showError(error || 'Có lỗi xảy ra');
+        }
+    } catch (error) {
+        showError('Không thể xử lý yêu cầu: ' + error.message);
+    }
+    finally{
+        showActionButton(requestId)
+    }
+}
+
 async function updateStatus(requestId, status) {
     try {
+        showLoadingActionButton(requestId);
         const response = await fetch(`${API_BASE}/update-status/${requestId}/${status}`, {
             headers: {
                 'Authorization': 'Bearer ' + localStorage.getItem('authToken')
@@ -283,6 +320,9 @@ async function updateStatus(requestId, status) {
     } catch (error) {
         showError('Không thể cập nhật trạng thái: ' + error.message);
     }
+    finally{
+        showActionButton(requestId)
+    }
 }
 
 function showLoading(show) {
@@ -290,6 +330,18 @@ function showLoading(show) {
     if (loadingElement) {
         loadingElement.style.display = show ? 'block' : 'none';
     }
+}
+
+function showLoadingActionButton(requestId) {
+    const actionButtonsId = document.getElementById(`actionButtons-${requestId}`);
+    actionButtonsId.innerHTML = `<div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+        </div>`;
+}
+
+function showActionButton(requestId) {
+    const actionButtonsId = document.getElementById(`actionButtons-${requestId}`);
+    actionButtonsId.innerHTML = getActionButtons(requestId);
 }
 
 function showSuccess(message) {

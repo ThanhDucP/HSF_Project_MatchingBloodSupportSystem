@@ -12,5 +12,5 @@ public interface BloodRepository extends JpaRepository<Blood, String> {
 
     int countAvailableBloodByBloodCode(String bloodCode);
 
-    Optional<Blood> findByBloodTypeAndRhAndComponentType(Blood.BloodType bloodType, Blood.RhFactor rhFactor, Blood.ComponentType componentType);
+    Optional<Blood> findByBloodTypeAndRh(Blood.BloodType bloodType, Blood.RhFactor rhFactor);
 }

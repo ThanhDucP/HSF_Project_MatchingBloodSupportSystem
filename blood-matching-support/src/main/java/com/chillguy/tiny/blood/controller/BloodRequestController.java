@@ -88,8 +88,8 @@ public class BloodRequestController {
     }
 
 
-    @PostMapping("/process-blood")
-    public ResponseEntity<?> processRequestWithInventoryCheck(@RequestParam String requestId) {
+    @PutMapping("/process-blood/{requestId}")
+    public ResponseEntity<?> processRequestWithInventoryCheck(@PathVariable String requestId) {
         try {
             service.processRequestWithInventoryCheck(requestId);
             return ResponseEntity.ok(Map.of(

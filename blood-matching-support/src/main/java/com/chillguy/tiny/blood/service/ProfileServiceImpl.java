@@ -41,7 +41,7 @@ public class ProfileServiceImpl implements IProfileService {
 
         Optional<Account> accountInDb = accountRepository.findByAccountId(accountId);
         Blood bloodRequest = BloodMapper.bloodMapper(profileUpdateDto.getBlood());
-        Optional<Blood> bloodInDb = bloodRepository.findByBloodTypeAndRhAndComponentType(bloodRequest.getBloodType(), bloodRequest.getRh(), bloodRequest.getComponentType());
+        Optional<Blood> bloodInDb = bloodRepository.findByBloodTypeAndRh(bloodRequest.getBloodType(), bloodRequest.getRh());
 
         if (accountInDb.isEmpty())
             throw new AccountNotFoundException("Account not found with Id: " + accountId);
