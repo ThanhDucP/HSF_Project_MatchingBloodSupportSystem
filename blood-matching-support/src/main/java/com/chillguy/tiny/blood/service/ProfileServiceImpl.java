@@ -3,13 +3,16 @@ package com.chillguy.tiny.blood.service;
 import com.chillguy.tiny.blood.dto.ProfileUpdateDto;
 import com.chillguy.tiny.blood.dto.response.ProfileDto;
 import com.chillguy.tiny.blood.entity.Account;
+import com.chillguy.tiny.blood.entity.Blood;
 import com.chillguy.tiny.blood.entity.Profile;
 import com.chillguy.tiny.blood.exception.AccountNotFoundException;
 import com.chillguy.tiny.blood.exception.ProfileIsExistedException;
 import com.chillguy.tiny.blood.exception.ProfileNotFoundException;
 import com.chillguy.tiny.blood.mapper.AddressMapper;
+import com.chillguy.tiny.blood.mapper.BloodMapper;
 import com.chillguy.tiny.blood.mapper.ProfileMapper;
 import com.chillguy.tiny.blood.repository.AccountRepository;
+import com.chillguy.tiny.blood.repository.BloodRepository;
 import com.chillguy.tiny.blood.repository.ProfileRepository;
 import org.springframework.stereotype.Service;
 
@@ -25,25 +28,35 @@ public class ProfileServiceImpl implements IProfileService {
 
     private final AccountRepository accountRepository;
 
-    public ProfileServiceImpl(ProfileRepository profileRepository, AccountRepository accountRepository) {
+    private final BloodRepository bloodRepository;
+
+    public ProfileServiceImpl(ProfileRepository profileRepository, AccountRepository accountRepository, BloodRepository bloodRepository) {
         this.profileRepository = profileRepository;
         this.accountRepository = accountRepository;
+        this.bloodRepository = bloodRepository;
     }
 
     @Override
-    public ProfileDto createProfile(String accountId, ProfileDto profileUpdateDto) {
+    public ProfileDto saveProfile(String accountId, ProfileDto profileUpdateDto) {
 
         Optional<Account> accountInDb = accountRepository.findByAccountId(accountId);
+        Blood bloodRequest = BloodMapper.bloodMapper(profileUpdateDto.getBlood());
+        Optional<Blood> bloodInDb = bloodRepository.findByBloodTypeAndRhAndComponentType(bloodRequest.getBloodType(), bloodRequest.getRh(), bloodRequest.getComponentType());
 
         if (accountInDb.isEmpty())
             throw new AccountNotFoundException("Account not found with Id: " + accountId);
 
+        if (bloodInDb.isEmpty())
+            throw new ProfileIsExistedException("Blood not found with Id: " + bloodRequest.getBloodType() + " " + bloodRequest.getRh() + " " + bloodRequest.getComponentType());
+
         Account account = accountInDb.get();
 
-        if (account.getProfile() != null)
-            throw new ProfileIsExistedException("Profile already existed.");
-
         Profile profile = new Profile();
+        profile.setNumberOfBloodDonation(0L);
+        profile.setRestDate(LocalDate.now());
+
+        if (account.getProfile() != null)
+            profile = account.getProfile();
 
         profile.setProfileId(generateProfileId());
         profile.setAccount(account);
@@ -51,6 +64,7 @@ public class ProfileServiceImpl implements IProfileService {
         profile.setPhone(profileUpdateDto.getPhone());
         profile.setDob(profileUpdateDto.getDob());
         profile.setGender(profileUpdateDto.getGender());
+        profile.setBloodCode(bloodInDb.get());
         profile.setAddress(AddressMapper.addressMapper(profileUpdateDto.getAddress()));
 
         Profile updatedProfile = profileRepository.save(profile);
@@ -79,7 +93,7 @@ public class ProfileServiceImpl implements IProfileService {
     @Override
     public ProfileDto updateProfile(String accountId, ProfileUpdateDto requestDto) {
 
-        Optional<Account> accountInDb = accountRepository.findByAccountId(accountId);
+        Optional<Account> accountInDb = accountRepository.findById(accountId);
 
         if (accountInDb.isEmpty())
             throw new AccountNotFoundException("Account not found with Id: " + accountId);

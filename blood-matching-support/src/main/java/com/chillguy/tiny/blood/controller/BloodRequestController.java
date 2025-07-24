@@ -132,7 +132,7 @@ public class BloodRequestController {
     }
 
 
-    @GetMapping("/confirm-by-token")
+    @PutMapping("/confirm-by-token")
     public ResponseEntity<?> confirmByToken(
             @RequestParam String requestId,
             @RequestParam String token) {

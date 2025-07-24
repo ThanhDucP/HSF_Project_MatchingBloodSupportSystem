@@ -14,4 +14,5 @@ import lombok.NoArgsConstructor;
 public class BloodDto {
     private String bloodType;
     private String rhFactor;
+    private String componentType;
 }

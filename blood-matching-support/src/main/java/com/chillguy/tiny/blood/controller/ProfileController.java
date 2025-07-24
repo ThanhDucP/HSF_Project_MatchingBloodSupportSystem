@@ -6,6 +6,7 @@ import com.chillguy.tiny.blood.dto.response.ProfileDto;
 import com.chillguy.tiny.blood.service.IProfileService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,6 +17,17 @@ public class ProfileController {
 
     public ProfileController(IProfileService profileService) {
         this.profileService = profileService;
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<ApiResponse<ProfileDto>> getMyProfile(){
+        String accountId = SecurityContextHolder.getContext().getAuthentication().getName();
+        ProfileDto responseDto = profileService.getProfileByAccountId(accountId);
+        return ResponseEntity.ok(ApiResponse.<ProfileDto>builder()
+                .code(200)
+                .message("Success")
+                .result(responseDto)
+                .build());
     }
 
 
@@ -31,15 +43,26 @@ public class ProfileController {
                 .build());
     }
 
-    @PreAuthorize("hasRole('ADMIN') or (hasRole('MEMBER') and #accountId == authentication.principal.accountId)")
-    @PostMapping("/{accountId}")
-    public ResponseEntity<ApiResponse<ProfileDto>> createProfile(@PathVariable String accountId, @RequestBody ProfileDto requestDto) {
-        ProfileDto createdProfileDto = profileService.createProfile(accountId, requestDto);
-        return ResponseEntity.ok(ApiResponse.<ProfileDto>builder()
-                .code(200)
-                .message("Created profile successfully")
-                .result(createdProfileDto)
-                .build());
+    @PreAuthorize("hasAnyRole('ADMIN','MEMBER','STAFF')")
+    @PutMapping("/save")
+    public ResponseEntity<ApiResponse<ProfileDto>> saveProfile(@RequestBody ProfileDto requestDto) {
+        try{
+            String accountId = SecurityContextHolder.getContext().getAuthentication().getName();
+            ProfileDto createdProfileDto = profileService.saveProfile(accountId, requestDto);
+            return ResponseEntity.ok(ApiResponse.<ProfileDto>builder()
+                    .code(200)
+                    .message("Created profile successfully")
+                    .result(createdProfileDto)
+                    .build());
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.ok(ApiResponse.<ProfileDto>builder()
+                    .code(500)
+                    .message(e.getMessage())
+                    .result(null)
+                    .build());
+        }
     }
 
     @PreAuthorize("hasRole('ADMIN') or (hasRole('MEMBER') and #accountId == authentication.principal.accountId)")

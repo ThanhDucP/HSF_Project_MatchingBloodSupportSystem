@@ -15,11 +15,6 @@ class RegisterForm {
             confirmPassword: this.confirmPasswordInput.value
         };
 
-        if(formData.username === "" || formData.email === "" || formData.password === "" || formData.confirmPassword === "") {
-            showError("Vui lòng điền đầy đủ thông tin.");
-            return;
-        }
-
         const passwordPattern = /^(?=.*[A-Z])(?=.*[!@#$%^&*?])(?=.*[a-zA-Z0-9]).{6,20}$/;
 
         if(!passwordPattern.test(formData.password)) {
@@ -45,8 +40,9 @@ class RegisterForm {
         .then(data => {
             if(data.code>=400) throw new Error(data.message);
 
+            const returnUrl = new URLSearchParams(window.location.search).get('return_url');
             alert("Đăng ký thành công! Vui lòng đăng nhập.");
-            window.location.href= '/login'; 
+            window.location.href= '/login?return_url=' + encodeURIComponent(returnUrl); 
         })
         .catch(error => {
             alert(error.message);

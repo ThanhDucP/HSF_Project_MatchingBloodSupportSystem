@@ -50,13 +50,14 @@ public class SecurityConfig {
                                 "/css/**", "/js/**", "/images/**", "/favicon.ico",
                                 "/", "/index", "/home", "/about",
                                 "/auth/**", // Login, register pages
+                                "/profile", // Profile page template
                                 "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"
                         ).permitAll()
                         
                         // Public API endpoints
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
-                        .requestMatchers("/api/blood-requests/confirm-by-token").permitAll()
+                        .requestMatchers("/api/blood-requests/confirm-by-token").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF", "ROLE_MEMBER")
                         
                         // Template pages - allow access, JavaScript will handle auth check
                         .requestMatchers("/blood-requests/**").permitAll()

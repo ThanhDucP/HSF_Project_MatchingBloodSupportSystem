@@ -103,7 +103,7 @@
                             <!-- Login Link -->
                             <div class="text-center">
                                 <p class="mb-0">Đã có tài khoản?</p>
-                                <a th:href="@{/auth/login}" class="btn btn-outline-danger">
+                                <a th:href="@{/auth/login(return_url=${param.return_url})}" class="btn btn-outline-danger">
                                     <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập ngay
                                 </a>
                             </div>

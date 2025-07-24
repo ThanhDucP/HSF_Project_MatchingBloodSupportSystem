@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeProgressBars();
     initializeRealtimeUpdates();
     checkAuthStatus();
+    initializeLogout();
 });
 
 // Check authentication status
@@ -48,7 +49,8 @@ function makeAuthenticatedRequest(url, options = {}) {
 }
 
 function initializeLogout(){
-    
+    const logoutBtn = document.getElementById('logout-btn');
+    logoutBtn.addEventListener('click', () => logout());   
 }
 
 // Logout function

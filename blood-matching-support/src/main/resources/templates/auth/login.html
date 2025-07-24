@@ -59,13 +59,6 @@
                                     </div>
                                 </div>
 
-                                <div class="mb-3 form-check">
-                                    <input type="checkbox" class="form-check-input" id="remember" name="remember-me">
-                                    <label class="form-check-label" for="remember">
-                                        Ghi nhớ đăng nhập
-                                    </label>
-                                </div>
-
                                 <div class="d-grid">
                                     <button type="submit" class="btn btn-danger btn-lg">
                                         <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
@@ -79,7 +72,7 @@
                             <!-- Register Link -->
                             <div class="text-center">
                                 <p class="mb-0">Chưa có tài khoản?</p>
-                                <a th:href="@{/auth/register}" class="btn btn-outline-danger">
+                                <a th:href="@{/auth/register(return_url=${param.return_url})}" class="btn btn-outline-danger">
                                     <i class="fas fa-user-plus me-2"></i>Đăng ký ngay
                                 </a>
                             </div>
@@ -142,7 +135,7 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        username: username,  // Sửa từ userName thành username
+                        username: username,
                         password: password
                     })
                 });
@@ -158,10 +151,9 @@
                     // Show success message
                     showAlert('success', 'Đăng nhập thành công!');
                     
-                    // Redirect to home page after 1 second
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 1000);
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const returnUrl = urlParams.get('return_url');
+                    window.location.href = returnUrl || '/';
                 } else {
                     showAlert('danger', data.message || 'Đăng nhập thất bại!');
                 }

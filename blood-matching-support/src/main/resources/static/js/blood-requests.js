@@ -264,27 +264,6 @@ function getActionButtons(request) {
     return buttons;
 }
 
-async function processRequest(requestId) {
-    if (!confirm('Bạn có chắc muốn xử lý yêu cầu này?')) return;
-    
-    try {
-        const response = await fetch(`${API_BASE}/process?requestId=${requestId}`, {
-            method: 'POST'
-        });
-        
-        const result = await response.json();
-        
-        if (response.ok) {
-            showSuccess(result.message || 'Xử lý thành công');
-            loadBloodRequests(); // Reload data
-        } else {
-            showError(result.message || 'Có lỗi xảy ra');
-        }
-    } catch (error) {
-        showError('Không thể xử lý yêu cầu: ' + error.message);
-    }
-}
-
 async function updateStatus(requestId, status) {
     try {
         const response = await fetch(`${API_BASE}/update-status/${requestId}/${status}`, {
