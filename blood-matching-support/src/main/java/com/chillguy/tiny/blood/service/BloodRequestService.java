@@ -41,24 +41,24 @@ public class BloodRequestService {
                 .orElseThrow(() -> new IllegalArgumentException("Bạn chưa có thông tin cá nhân, vui lòng tạo!!"));
         
         System.out.println("DEBUG - Tìm bloodCode: " + dto.getBloodCode());
-        
+
         // Convert frontend format to database format
         // Frontend: A_POSITIVE_RED_BLOOD_CELL → Database: A_POS_RED_BLOOD_CELL
-        String dbBloodCode = dto.getBloodCode()
-                .replace("_POSITIVE_", "_POS_")
-                .replace("_NEGATIVE_", "_NEG_");
-        
-        System.out.println("DEBUG - Converted bloodCode: " + dbBloodCode);
-        
+        String dbBloodCode = dto.getBloodCode();
+
+
         Blood blood = bloodRepo.findByBloodCode(dbBloodCode);
         System.out.println("DEBUG - Kết quả blood: " + (blood != null ? blood.getBloodCode() : "NULL"));
-        
+
         if (blood == null) {
             throw new IllegalArgumentException("Không tìm thấy loại máu với mã: " + dto.getBloodCode() + " (converted: " + dbBloodCode + ")");
         }
 
-        boolean hasUnfinished = requestRepo.existsByAccount_AccountIdAndStatusIn(
-                accountId, List.of(BloodRequest.Status.PENDING));
+        boolean hasUnfinished = requestRepo.existsByAccount_AccountIdAndStatusNotIn(
+                accountId,
+                List.of(BloodRequest.Status.CONFIRMED, BloodRequest.Status.CANCELLED)
+        );
+
         if (hasUnfinished) throw new IllegalStateException("Bạn đã có đơn xin máu chưa hoàn thành.");
 
         BloodRequest request = BloodRequest.builder()
@@ -226,6 +226,7 @@ public class BloodRequestService {
                         .build())
                 .toList();
     }
+
 
     public List<BloodRequestResponseDTO> getAllRequests(
         String patientName,

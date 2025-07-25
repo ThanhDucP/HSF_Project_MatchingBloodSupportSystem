@@ -6,7 +6,6 @@ const bloodStatus = {
     CONFIRMED: 'CONFIRMED',
     MATCHED: 'MATCHED',
     CANCELLED: 'CANCELLED',
-    COMPLETED: 'COMPLETED'
 }
 
 const bloodTypes = {
@@ -184,13 +183,14 @@ function displayBloodRequests(requests) {
             <td class="text-center">
                 ${request.emergency ? '<i class="fas fa-exclamation-triangle text-warning" title="Khẩn cấp"></i>' : '<i class="fas fa-minus text-muted"></i>'}
             </td>
-            ${window?.canAct ? `
+                        ${window?.canAct && request.status === 'PENDING' ? `
             <td class="text-center">
                 <div class="btn-group" role="group" id="actionButtons-${request.requestId}">
                     ${getActionButtons(request)}
                 </div>
             </td>
-            `: ''}
+            ` : window?.canAct ? '<td></td>' : ''}
+
         </tr>
     `).join('');
 }

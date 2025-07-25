@@ -42,7 +42,7 @@ public class BloodRequestController {
     @GetMapping("/getall")
     public ResponseEntity<?> getAllBloodRequests(
         @RequestParam(required = false, defaultValue = "") String patientName,
-        @RequestParam(required = false, defaultValue = "PENDING,CONFIRMED,MATCHED,CANCELLED,COMPLETED") List<BloodRequest.Status> status,
+        @RequestParam(required = false, defaultValue = "PENDING,CONFIRMED,MATCHED,CANCELLED") List<BloodRequest.Status> status,
         @RequestParam(required = false, defaultValue = "A,B,AB,O") List<Blood.BloodType> bloodType,
         @RequestParam(required = false, defaultValue = "POSITIVE,NEGATIVE") List<Blood.RhFactor> bloodCodeRh
     ) {
@@ -59,7 +59,7 @@ public class BloodRequestController {
     @GetMapping("/my-requests")
     public ResponseEntity<?> getByUserId(
         @RequestParam(required = false, defaultValue = "") String patientName,
-        @RequestParam(required = false, defaultValue = "PENDING,CONFIRMED,MATCHED,CANCELLED,COMPLETED") List<BloodRequest.Status> status,
+        @RequestParam(required = false, defaultValue = "PENDING,CONFIRMED,MATCHED,CANCELLED") List<BloodRequest.Status> status,
         @RequestParam(required = false, defaultValue = "A,B,AB,O") List<Blood.BloodType> bloodType,
         @RequestParam(required = false, defaultValue = "POSITIVE,NEGATIVE") List<Blood.RhFactor> bloodCodeRh
     ) {
@@ -147,12 +147,24 @@ public class BloodRequestController {
             String email = request.getConfirmationTokens().get(token);
             LocalDateTime createdAt = request.getTokenCreatedAt().get(token);
 
-            if (email == null || request.isTokenExpired(createdAt)) {
+            if (request.getConfirmedAccountIds().contains(email)) {
+                return ResponseEntity.badRequest().body("Bạn đã xác nhận rồi");
+            }
+
+            if (email == null) {
                 request.getConfirmationTokens().remove(token);
                 request.getTokenCreatedAt().remove(token);
                 requestRepo.save(request);
-                return ResponseEntity.badRequest().body("Bạn đã xác nhận hoặc đơn đã đóng!!");
+                return ResponseEntity.badRequest().body("Đường dẫn không hợp lệ hoặc đã bị xoá.");
             }
+
+            if (request.isTokenExpired(createdAt)) {
+                request.getConfirmationTokens().remove(token);
+                request.getTokenCreatedAt().remove(token);
+                requestRepo.save(request);
+                return ResponseEntity.badRequest().body("Đường dẫn đã hết hạn.");
+            }
+
 
             if (request.getConfirmedAccountIds().contains(email)) {
                 return ResponseEntity.badRequest().body("Bạn đã xác nhận rồi");

@@ -73,8 +73,8 @@
                                         </label>
                                         <select class="form-select" id="rhFactor" name="rhFactor" required>
                                             <option value="">Chọn Rh</option>
-                                            <option value="POSITIVE">Dương (+)</option>
-                                            <option value="NEGATIVE">Âm (-)</option>
+                                            <option value="+">Dương (+)</option>
+                                            <option value="-">Âm (-)</option>
                                         </select>
                                         <div class="invalid-feedback"></div>
                                     </div>
@@ -87,6 +87,7 @@
                                         </label>
                                         <select class="form-select" id="componentType" name="componentType" required>
                                             <option value="">Chọn loại thành phần</option>
+                                            <option value="WHOLE_BLOODL">Máu toàn phần</option>
                                             <option value="RED_BLOOD_CELL">Hồng cầu</option>
                                             <option value="PLASMA">Plasma</option>
                                             <option value="PLATELET">Tiểu cầu</option>
@@ -193,7 +194,7 @@
                 const data = {
                     patientName: formData.get('patientName'),
                     requestDate: formData.get('requestDate'),
-                    bloodCode: formData.get('bloodType') + '_' + formData.get('rhFactor') + '_' + formData.get('componentType'),
+                    bloodCode: formData.get('bloodType') + formData.get('rhFactor'),
                     volume: parseInt(formData.get('volume')),
                     address: formData.get('address') || '',
                     isEmergency: formData.get('isEmergency') === 'on'

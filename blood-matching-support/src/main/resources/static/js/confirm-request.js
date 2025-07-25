@@ -1,17 +1,11 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const urlParams = new URLSearchParams(window.location.search);
     const requestId = urlParams.get('requestId');
     const token = urlParams.get('token');
     const returnUrl = urlParams.get('returnUrl') || '/';
-    const authToken = localStorage.getItem('authToken');
 
     if (!requestId || !token) {
         showError('Thiếu thông tin xác nhận');
-        return;
-    }
-
-    if (!authToken) {
-        showError(`Xin hãy đăng nhập để xác nhận. <a href="/auth/login?return_url=${encodeURIComponent(window.location.href)}" class="btn btn-primary"> Đi tới đăng nhập</a>`);
         return;
     }
 
@@ -36,34 +30,25 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('loading-spinner').style.display = 'none';
     }
 
-    function checkAuthentication() {
-        if (!authToken) {
-            // Redirect to login with return_url
-            const returnTo = window.location.href;
-            window.location.href = `/auth/login?return_url=${encodeURIComponent(returnTo)}`;
-            return;
-        }
-
-        // Send confirmation request
-        fetch(`/api/blood-requests/confirm-by-token?requestId=${requestId}&token=${token}`, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${authToken}`
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                showSuccess('Bạn đã được xác nhận thành công! Cảm ơn bạn đã giúp đỡ');
+    // Gửi xác nhận KHÔNG CẦN AUTH TOKEN
+    fetch(`/api/blood-requests/confirm-by-token?requestId=${requestId}&token=${token}`, {
+        method: 'PUT'
+    })
+        .then(async response => {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                const data = await response.json();
+                if (data.status === 'success') {
+                    showSuccess('✅ Bạn đã xác nhận đơn hiến máu thành công. Xin cảm ơn bạn đã giúp đỡ!');
+                } else {
+                    showError(data.message || '❌ Xác nhận không thành công.');
+                }
             } else {
-                showError(data.message || 'Xác nhận không thành công');
+                const text = await response.text();
+                showError(text || '❌ Xác nhận không thành công.');
             }
         })
         .catch(error => {
-            showError('Có lỗi xảy ra: ' + error.message);
+            showError('❌ Có lỗi xảy ra: ' + error.message);
         });
-    }
-
-    // Check authentication immediately
-    checkAuthentication();
 });

@@ -57,7 +57,7 @@ public class SecurityConfig {
                         // Public API endpoints
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
-                        .requestMatchers(HttpMethod.PUT,"/api/blood-requests/confirm-by-token").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF", "ROLE_MEMBER")
+                        .requestMatchers(HttpMethod.PUT,"/api/blood-requests/confirm-by-token").permitAll()
                         
                         // Template pages - allow access, JavaScript will handle auth check
                         .requestMatchers("/blood-requests/**").permitAll()
