@@ -57,9 +57,12 @@ function setupEventListeners() {
     document.getElementById('bloodTypeFilter').addEventListener('input',(e)=>{
         queryValues.bloodType = e.target.value;
     });
-    document.getElementById('keywordFilter').addEventListener('input',(e)=>{
-        queryValues.patientName = e.target.value;
-    });
+    if(document.getElementById('keywordFilter')){
+        document.getElementById('keywordFilter').addEventListener('input',(e)=>{
+            queryValues.patientName = e.target.value;
+        });
+    }
+
 
     // Filter form submission
     const filterForm = document.getElementById('filterForm');
