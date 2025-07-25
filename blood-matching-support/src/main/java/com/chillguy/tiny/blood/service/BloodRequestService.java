@@ -256,13 +256,13 @@ public class BloodRequestService {
         BloodRequest request = requestRepo.findByIdBloodRequest(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn yêu cầu với ID: " + requestId));
 
-        if (request.getStatus() == BloodRequest.Status.COMPLETED || request.getStatus() == BloodRequest.Status.CANCELLED) {
+        if (request.getStatus() == BloodRequest.Status.CONFIRMED || request.getStatus() == BloodRequest.Status.CANCELLED) {
             throw new IllegalStateException("Không thể cập nhật trạng thái của đơn đã hoàn tất hoặc bị huỷ.");
         }
 
         request.setStatus(newStatus);
 
-        if (newStatus == BloodRequest.Status.CONFIRMED || newStatus == BloodRequest.Status.COMPLETED) {
+        if (newStatus == BloodRequest.Status.CONFIRMED) {
             request.setClosed(true);
         }
 

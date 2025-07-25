@@ -18,11 +18,10 @@ import java.util.*;
 public class BloodRequest {
 
     public enum Status {
-        PENDING,
-        CONFIRMED,
-        MATCHED,
-        CANCELLED,
-        COMPLETED
+        PENDING, // DOI STAFF XAC NHAN
+        CONFIRMED, // DA HOAN THANH CHU TRINH
+        MATCHED, // DA MATCH VS MEMBER KHAC
+        CANCELLED // HUY DON
     }
 
     @Id
